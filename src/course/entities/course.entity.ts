@@ -2,12 +2,9 @@ import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { Transaction } from '../../transaction/entities/transaction.entity';
 import { UserCourse } from '../../user-course/entities/user-course.entity';
 
-@Index('USER_pkey', ['id'], { unique: true })
-@Index('USER_identification_number_key', ['identificationNumber'], {
-  unique: true,
-})
-@Entity('USER', { schema: 'public' })
-export class User {
+@Index('COURSES_pkey', ['id'], { unique: true })
+@Entity('COURSES', { schema: 'public' })
+export class Courses {
   @Column('uuid', {
     primary: true,
     name: 'id',
@@ -27,21 +24,21 @@ export class User {
   @Column('timestamp without time zone', { name: 'deleted_at', nullable: true })
   deletedAt: Date | null;
 
-  @Column('character varying', { name: 'identification_number', unique: true })
-  identificationNumber: string;
+  @Column('numeric', { name: 'price', nullable: true })
+  price: string | null;
 
-  @Column('character varying', { name: 'first_name', nullable: true })
-  firstName: string | null;
+  @Column('character varying', { name: 'name', nullable: true })
+  name: string | null;
 
-  @Column('character varying', { name: 'last_name', nullable: true })
-  lastName: string | null;
+  @Column('character varying', { name: 'description', nullable: true })
+  description: string | null;
 
-  @Column('character varying', { name: 'password', nullable: true })
-  password: string | null;
+  @Column('jsonb', { name: 'image', nullable: true })
+  image: object | null;
 
-  @OneToMany(() => Transaction, (transaction) => transaction.user)
+  @OneToMany(() => Transaction, (transaction) => transaction.course)
   transactions: Transaction[];
 
-  @OneToMany(() => UserCourse, (userCourse) => userCourse.user)
+  @OneToMany(() => UserCourse, (userCourse) => userCourse.course)
   userCourses: UserCourse[];
 }

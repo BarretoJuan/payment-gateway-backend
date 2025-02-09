@@ -1,13 +1,11 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { Transaction } from '../../transaction/entities/transaction.entity';
-import { UserCourse } from '../../user-course/entities/user-course.entity';
 
-@Index('USER_pkey', ['id'], { unique: true })
-@Index('USER_identification_number_key', ['identificationNumber'], {
-  unique: true,
-})
-@Entity('USER', { schema: 'public' })
-export class User {
+@Index('OPERATOR_email_key', ['email'], { unique: true })
+@Index('OPERATOR_pkey', ['id'], { unique: true })
+@Index('OPERATOR_identification_key', ['identification'], { unique: true })
+@Entity('OPERATOR', { schema: 'public' })
+export class Operator {
   @Column('uuid', {
     primary: true,
     name: 'id',
@@ -27,8 +25,11 @@ export class User {
   @Column('timestamp without time zone', { name: 'deleted_at', nullable: true })
   deletedAt: Date | null;
 
-  @Column('character varying', { name: 'identification_number', unique: true })
-  identificationNumber: string;
+  @Column('character varying', { name: 'email', unique: true })
+  email: string;
+
+  @Column('character varying', { name: 'identification', unique: true })
+  identification: string;
 
   @Column('character varying', { name: 'first_name', nullable: true })
   firstName: string | null;
@@ -36,12 +37,13 @@ export class User {
   @Column('character varying', { name: 'last_name', nullable: true })
   lastName: string | null;
 
-  @Column('character varying', { name: 'password', nullable: true })
-  password: string | null;
+  @Column('enum', {
+    name: 'role',
+    nullable: true,
+    enum: ['admin', 'accounting'],
+  })
+  role: 'admin' | 'accounting' | null;
 
-  @OneToMany(() => Transaction, (transaction) => transaction.user)
+  @OneToMany(() => Transaction, (transaction) => transaction.validatedBy)
   transactions: Transaction[];
-
-  @OneToMany(() => UserCourse, (userCourse) => userCourse.user)
-  userCourses: UserCourse[];
 }

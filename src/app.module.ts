@@ -5,6 +5,10 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { UserModule } from './user/user.module';
+import { CourseModule } from './course/course.module';
+import { OperatorModule } from './operator/operator.module';
+import { TransactionModule } from './transaction/transaction.module';
+import { UserCourseModule } from './user-course/user-course.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -19,6 +23,10 @@ import { UserModule } from './user/user.module';
       entities: [],
     }),
     UserModule,
+    CourseModule,
+    OperatorModule,
+    TransactionModule,
+    UserCourseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
