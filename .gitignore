@@ -1,6 +1,7 @@
 /vendor/
 node_modules/
 dist/
+dist/tsconfig.build.tsbuildinfo
 npm-debug.log
 yarn-error.log
 
