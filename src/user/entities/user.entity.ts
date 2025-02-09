@@ -2,6 +2,7 @@ import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { Transaction } from '../../transaction/entities/transaction.entity';
 import { UserCourse } from '../../user-course/entities/user-course.entity';
 
+@Index('USER_email_key', ['email'], { unique: true })
 @Index('USER_pkey', ['id'], { unique: true })
 @Index('USER_identification_number_key', ['identificationNumber'], {
   unique: true,
@@ -27,6 +28,9 @@ export class User {
   @Column('timestamp without time zone', { name: 'deleted_at', nullable: true })
   deletedAt: Date | null;
 
+  @Column('character varying', { name: 'email', unique: true })
+  email: string;
+
   @Column('character varying', { name: 'identification_number', unique: true })
   identificationNumber: string;
 
@@ -36,11 +40,19 @@ export class User {
   @Column('character varying', { name: 'last_name', nullable: true })
   lastName: string | null;
 
-  @Column('character varying', { name: 'password', nullable: true })
-  password: string | null;
+
+  @Column('enum', {
+    name: 'role',
+    nullable: true,
+    enum: ['admin', 'accounting', 'user'],
+  })
+  role: 'admin' | 'accounting' | 'user' | null;
 
   @OneToMany(() => Transaction, (transaction) => transaction.user)
   transactions: Transaction[];
+
+  @OneToMany(() => Transaction, (transaction) => transaction.validatedBy)
+  validatedTransactions: Transaction[];
 
   @OneToMany(() => UserCourse, (userCourse) => userCourse.user)
   userCourses: UserCourse[];

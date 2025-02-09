@@ -6,10 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UserCourseService } from './user-course.service';
 import { CreateUserCourseDto } from './dto/create-user-course.dto';
 import { UpdateUserCourseDto } from './dto/update-user-course.dto';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('user-course')
 export class UserCourseController {
@@ -21,6 +23,7 @@ export class UserCourseController {
   }
 
   @Get()
+  @UseGuards(AuthGuard) 
   findAll() {
     return this.userCourseService.findAll();
   }

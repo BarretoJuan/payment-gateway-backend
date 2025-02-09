@@ -6,9 +6,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { UserModule } from './user/user.module';
 import { CourseModule } from './course/course.module';
-import { OperatorModule } from './operator/operator.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { UserCourseModule } from './user-course/user-course.module';
+import { AuthModule } from './auth/auth.module';
+import { SupabaseService } from './supabase/supabase.service';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -24,12 +25,12 @@ import { UserCourseModule } from './user-course/user-course.module';
     }),
     UserModule,
     CourseModule,
-    OperatorModule,
     TransactionModule,
     UserCourseModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SupabaseService],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}

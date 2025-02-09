@@ -1,7 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 import { Courses } from '../../course/entities/course.entity';
 import { User } from '../../user/entities/user.entity';
-import { Operator } from '../../operator/entities/operator.entity';
 
 @Index('TRANSACTION_pkey', ['id'], { unique: true })
 @Entity('TRANSACTION', { schema: 'public' })
@@ -64,10 +63,10 @@ export class Transaction {
   @JoinColumn([{ name: 'user_id', referencedColumnName: 'id' }])
   user: User;
 
-  @ManyToOne(() => Operator, (operator) => operator.transactions, {
+  @ManyToOne(() => User, (user) => user.validatedTransactions, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn([{ name: 'validated_by', referencedColumnName: 'id' }])
-  validatedBy: Operator;
+  validatedBy: User;
 }
