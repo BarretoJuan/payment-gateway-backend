@@ -1,5 +1,12 @@
 // src/auth/auth.controller.ts
-import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Req,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
 import { CreateUserDto } from '../user/dto/create-user.dto';
@@ -13,8 +20,24 @@ export class AuthController {
     return this.authService.signUp(user);
   }
 
+  @Post('signup-admin')
+  @UseGuards(AuthGuard)
+  async signUpAdmin(@Body() user: CreateUserDto, @Req() request: Request) {
+    const accessToken = request.headers['authorization']?.split(' ')[1];
+    const decodedToken = await this.authService.validateUser(accessToken);
+    if (decodedToken.user?.role !== 'admin') {
+      throw new UnauthorizedException(
+        'You are not authorized to perform this action',
+      );
+    }
+    return this.authService.signUpAdmin(user);
+  }
+
   @Post('signin')
-  async signIn(@Body('identification') identification: string, @Body('password') password: string) {
+  async signIn(
+    @Body('identification') identification: string,
+    @Body('password') password: string,
+  ) {
     return this.authService.signIn(identification, password);
   }
 

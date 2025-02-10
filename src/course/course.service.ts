@@ -11,7 +11,7 @@ export class CourseService {
     @InjectRepository(Courses)
     private coursesRepository: Repository<Courses>,
   ) {}
-  
+
   create(createCourseDto: CreateCourseDto) {
     return 'This action adds a new course';
   }

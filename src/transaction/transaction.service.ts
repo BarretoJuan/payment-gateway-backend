@@ -7,18 +7,19 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class TransactionService {
-
   constructor(
     @InjectRepository(Transaction)
     private transactionsRepository: Repository<Transaction>,
   ) {}
-  
+
   create(createTransactionDto: CreateTransactionDto) {
     return 'This action adds a new transaction';
   }
 
   async findAll() {
-    return await this.transactionsRepository.find({relations: [ 'course', 'user', 'validatedBy']});
+    return await this.transactionsRepository.find({
+      relations: ['course', 'user', 'validatedBy'],
+    });
   }
 
   findOne(id: number) {

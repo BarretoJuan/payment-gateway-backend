@@ -1,31 +1,29 @@
-import {  IsNotEmpty, IsEmail, length, MinLength, Min } from "class-validator";
-import { Long } from "typeorm";
+import { IsNotEmpty, IsEmail, length, MinLength, Min } from 'class-validator';
+import { Long } from 'typeorm';
 
 export class SaveUserDto {
+  @IsNotEmpty()
+  name: string;
 
-    @IsNotEmpty()
-    name: string;
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
 
-    @IsNotEmpty()
-    @IsEmail()
-    email: string;
+  @IsNotEmpty()
+  identificationNumber: string;
 
-    @IsNotEmpty()
-    identificationNumber: string;
+  @IsNotEmpty()
+  firstName: string;
 
-    @IsNotEmpty()
-    firstName: string;
+  @IsNotEmpty()
+  lastName: string;
 
-    @IsNotEmpty()
-    lastName: string;
-
-    @IsNotEmpty()
-    role: userRoles;
-
+  @IsNotEmpty()
+  role: userRoles;
 }
 
 export class CreateUserDto extends SaveUserDto {
-    @IsNotEmpty()
-    @MinLength(8)
-    password: string;
+  @IsNotEmpty()
+  @MinLength(8)
+  password: string;
 }

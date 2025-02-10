@@ -18,22 +18,25 @@ export class UserCourseController {
   constructor(private readonly userCourseService: UserCourseService) {}
 
   @Post()
+  @UseGuards(AuthGuard)
   create(@Body() createUserCourseDto: CreateUserCourseDto) {
     return this.userCourseService.create(createUserCourseDto);
   }
 
   @Get()
-  @UseGuards(AuthGuard) 
+  @UseGuards(AuthGuard)
   findAll() {
     return this.userCourseService.findAll();
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   findOne(@Param('id') id: string) {
     return this.userCourseService.findOne(+id);
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard)
   update(
     @Param('id') id: string,
     @Body() updateUserCourseDto: UpdateUserCourseDto,
@@ -42,6 +45,7 @@ export class UserCourseController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   remove(@Param('id') id: string) {
     return this.userCourseService.remove(+id);
   }

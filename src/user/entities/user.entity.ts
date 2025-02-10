@@ -40,7 +40,6 @@ export class User {
   @Column('character varying', { name: 'last_name', nullable: true })
   lastName: string | null;
 
-
   @Column('enum', {
     name: 'role',
     nullable: true,

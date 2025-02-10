@@ -13,9 +13,7 @@ export class UserService {
   ) {}
 
   async create(createUserDto: SaveUserDto) {
-    console.log("??? ", createUserDto);
     const create = await this.usersRepository.save(createUserDto);
-    console.log("create", create);
     return create;
   }
 
@@ -24,8 +22,9 @@ export class UserService {
   }
 
   async findOneByIdentification(identification: string) {
-    console.log("identificationnn", identification);
-    return await this.usersRepository.findOne({ where: {identificationNumber: Equal(identification)} });
+    return await this.usersRepository.findOne({
+      where: { identificationNumber: Equal(identification) },
+    });
   }
 
   findOne(findOneOptions: FindOneOptions<User>) {

@@ -17,7 +17,9 @@ export class UserCourseService {
   }
 
   async findAll() {
-    return await this.userCoursesRepository.find({relations: ['user', 'course']});
+    return await this.userCoursesRepository.find({
+      relations: ['user', 'course'],
+    });
   }
 
   findOne(id: number) {
