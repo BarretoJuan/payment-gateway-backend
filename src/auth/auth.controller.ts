@@ -14,8 +14,8 @@ export class AuthController {
   }
 
   @Post('signin')
-  async signIn(@Body('email') email: string, @Body('password') password: string) {
-    return this.authService.signIn(email, password);
+  async signIn(@Body('identification') identification: string, @Body('password') password: string) {
+    return this.authService.signIn(identification, password);
   }
 
   @Post('refresh')

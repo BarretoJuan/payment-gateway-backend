@@ -1,7 +1,7 @@
-import {  IsNotEmpty, IsEmail, length, MinLength } from "class-validator";
+import {  IsNotEmpty, IsEmail, length, MinLength, Min } from "class-validator";
 import { Long } from "typeorm";
 
-export class CreateUserDto {
+export class SaveUserDto {
 
     @IsNotEmpty()
     name: string;
@@ -9,10 +9,6 @@ export class CreateUserDto {
     @IsNotEmpty()
     @IsEmail()
     email: string;
-
-    @IsNotEmpty()
-    @MinLength(8)
-    password: string;
 
     @IsNotEmpty()
     identificationNumber: string;
@@ -26,4 +22,10 @@ export class CreateUserDto {
     @IsNotEmpty()
     role: userRoles;
 
+}
+
+export class CreateUserDto extends SaveUserDto {
+    @IsNotEmpty()
+    @MinLength(8)
+    password: string;
 }

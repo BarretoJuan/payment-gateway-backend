@@ -1,18 +1,18 @@
 // src/auth/auth.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, Repository } from 'typeorm';
+import { DeepPartial, Equal, Repository } from 'typeorm';
 import { SupabaseService } from '../supabase/supabase.service';
 import { User } from '../user/entities/user.entity'; 
 import { CreateUserDto } from '../user/dto/create-user.dto';
+import { UserService } from '../user/user.service';
 
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly supabaseService: SupabaseService,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly usersService: UserService
 
   ) {}
 
@@ -22,6 +22,13 @@ export class AuthService {
   async signUp(user: CreateUserDto) {
     const email = user.email;
     const password = user.password;
+    const idExists = await this.usersService.findOne({ where: { identificationNumber: Equal(user.identificationNumber) } });
+    const emailExists = await this.usersService.findOne({ where: { email: Equal(user.email) } });
+    console.log("1111", idExists);
+    console.log("2222", emailExists);
+    if (idExists || emailExists) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
     const { data, error } = await this.supabaseService
       .getClient()
       .auth.signUp({ email, password });
@@ -32,21 +39,31 @@ export class AuthService {
 
     const { password: userPassword, ...userToSave} = user;
     console.log("userToSave", userToSave);
-    await this.userRepository.save(userToSave);
+    await this.usersService.create(userToSave);
 
-    return data;
+    return {
+      user: userToSave,
+      accessToken: data?.session?.access_token
+    };
   }
 
   /**
    * Sign in a user with email and password
    */
-  async signIn(email: string, password: string) {
+  async signIn(identification: string, password: string) {
+
+    const user = await this.usersService.findOneByIdentification(identification);
+    console.log("////", user);
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
     const { data, error } = await this.supabaseService
       .getClient()
-      .auth.signInWithPassword({ email, password });
+      .auth.signInWithPassword({ email:user.email, password });
 
     if (error) {
-      throw new Error(error.message);
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     // // Save session to database
@@ -56,7 +73,7 @@ export class AuthService {
     // session.refreshToken = data.session.refresh_token;
     // await this.sessionRepository.save(session);
 
-    return data;
+    return { user: user, accessToken: data.session.access_token, refreshToken: data.session.refresh_token };
   }
 
   /**
