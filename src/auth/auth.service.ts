@@ -84,6 +84,7 @@ export class AuthService {
    * Sign in a user with email and password
    */
   async signIn(identification: string, password: string) {
+    console.log(identification, password);
     const user =
       await this.usersService.findOneByIdentification(identification);
     if (!user) {

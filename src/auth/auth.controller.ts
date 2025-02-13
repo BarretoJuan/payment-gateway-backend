@@ -38,6 +38,7 @@ export class AuthController {
     @Body('identification') identification: string,
     @Body('password') password: string,
   ) {
+    console.log("Hola mundo")
     return this.authService.signIn(identification, password);
   }
 
