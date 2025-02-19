@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+/* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // src/auth/auth.service.ts
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, Equal, Repository } from 'typeorm';
+import { Equal } from 'typeorm';
 import { SupabaseService } from '../supabase/supabase.service';
 import { User } from '../user/entities/user.entity';
 import { CreateUserDto } from '../user/dto/create-user.dto';
@@ -59,7 +61,7 @@ export class AuthService {
       where: { email: Equal(user.email) },
     });
 
-    await this.supabaseService;
+    this.supabaseService;
     if (idExists || emailExists) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -98,7 +100,7 @@ export class AuthService {
     if (error) {
       throw new UnauthorizedException('Invalid credentials');
     }
-
+    console.log('data', data);
     // // Save session to database
     // const session = new Session();
     // session.userId = data.user.id;
@@ -107,7 +109,11 @@ export class AuthService {
     // await this.sessionRepository.save(session);
 
     return {
-      user: user,
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+      },
       accessToken: data.session.access_token,
       refreshToken: data.session.refresh_token,
     };
