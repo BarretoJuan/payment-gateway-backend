@@ -8,7 +8,7 @@ import { SupabaseService } from '../supabase/supabase.service';
 import { User } from '../user/entities/user.entity';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
-
+import { userRoles } from '../common/constants';
 @Injectable()
 export class AuthService {
   constructor(
@@ -29,7 +29,7 @@ export class AuthService {
       where: { email: Equal(user.email) },
     });
     if (user.role !== 'user') {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Not allowed');
     }
     if (idExists || emailExists) {
       throw new UnauthorizedException('Invalid credentials');
@@ -51,6 +51,9 @@ export class AuthService {
     };
   }
 
+  /**
+   * TODO: SAME BEHAVIOR AS signIn METHOD
+   */
   async signUpAdmin(user: CreateUserDto) {
     const email = user.email;
     const password = user.password;
@@ -74,16 +77,23 @@ export class AuthService {
     }
 
     const { password: userPassword, ...userToSave } = user;
-    await this.usersService.create(userToSave);
+    await this.usersService.create({
+      ...userToSave,
+      role: userRoles.ADMIN,
+    });
 
     return {
-      user: userToSave,
+      user: {
+        ...userToSave,
+        role: user.role.toLocaleLowerCase(),
+      },
       accessToken: data?.session?.access_token,
     };
   }
 
   /**
    * Sign in a user with email and password
+   * TODO: CHECK THIS BEHAVIOR: WHEN A USER IS SIGNIN IN, IT FIRST SIGNS THE USER CORRECTLY THEN THROWS AN ERROR
    */
   async signIn(identification: string, password: string) {
     console.log(identification, password);
@@ -100,7 +110,7 @@ export class AuthService {
     if (error) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    console.log('data', data);
+
     // // Save session to database
     // const session = new Session();
     // session.userId = data.user.id;
@@ -113,6 +123,7 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
+        email: user.email,
       },
       accessToken: data.session.access_token,
       refreshToken: data.session.refresh_token,
@@ -121,6 +132,7 @@ export class AuthService {
 
   /**
    * Refresh a user's session using the refresh token
+   * TODO: CHECK THIS BEHAVIOR
    */
   async refreshToken(refreshToken: string) {
     const { data, error } = await this.supabaseService
