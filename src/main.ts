@@ -8,7 +8,7 @@ async function bootstrap() {
   console.log(`Listening on: http://localhost:${process.env.PORT ?? 3000}`);
 
   app.enableCors({
-    origin: 'localhost:4200',
+    origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Accept',
   });
