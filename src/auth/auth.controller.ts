@@ -29,7 +29,8 @@ export class AuthController {
   async signUpAdmin(@Body() user: CreateUserDto, @Req() request: Request) {
     const accessToken: string = request.headers['authorization']?.split(' ')[1];
     const decodedToken = await this.authService.validateUser(accessToken);
-    if (decodedToken.user?.role !== 'admin') {
+
+    if (decodedToken.user?.role?.toLocaleLowerCase() !== 'admin') {
       throw new UnauthorizedException(
         'You are not authorized to perform this action',
       );
