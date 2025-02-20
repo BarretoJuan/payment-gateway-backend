@@ -27,14 +27,16 @@ export class UserCourse {
   @Column('enum', {
     name: 'status',
     nullable: true,
-    enum: ['completed', 'in_process', 'rejected', 'ready_to_be_checked'],
+    enum: ['acquired', 'not_acquired', 'cancelled'],
   })
   status:
-    | 'completed'
-    | 'in_process'
-    | 'rejected'
-    | 'ready_to_be_checked'
+    | 'acquired'
+    | 'not_acquired'
+    | 'cancelled'
     | null;
+
+    @Column('varchar', { name: 'cancellation_reason', nullable: true })
+    cancellationReason: string | null;
 
   @ManyToOne(() => Courses, (courses) => courses.userCourses, {
     onDelete: 'CASCADE',

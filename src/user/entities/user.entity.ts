@@ -40,6 +40,9 @@ export class User {
   @Column('character varying', { name: 'last_name', nullable: true })
   lastName: string | null;
 
+  @Column('numeric', { name: 'balance', nullable: true})
+  balance: number | null;
+
   @Column('enum', {
     name: 'role',
     nullable: true,
