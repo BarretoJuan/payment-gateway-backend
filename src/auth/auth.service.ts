@@ -195,4 +195,17 @@ export class AuthService {
       user: userDb,
     };
   }
+
+  /**
+   * Check if this is the first run of the application by retrieving a count of users in the database:  If there are no users, then it is the first run
+   */
+  async checkFirstRun() {
+    const numberOfUsers =  (await this.usersService.findAll()).length;
+
+    
+    // Negate the boolean value of numberOfUsers to return true if there are no users in the database and false if there are users.
+
+    return !Boolean(numberOfUsers)
+  }
+
 }

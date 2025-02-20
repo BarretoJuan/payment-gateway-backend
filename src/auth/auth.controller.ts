@@ -7,6 +7,7 @@ import {
   Controller,
   Post,
   Body,
+  Get,
   UseGuards,
   Req,
   UnauthorizedException,
@@ -56,5 +57,10 @@ export class AuthController {
   async logout(@Req() request: Request) {
     const accessToken = request.headers['authorization']?.split(' ')[1];
     return this.authService.logout(accessToken);
+  }
+
+  @Get('check-first-run')
+  async checkFirstRun() {
+    return this.authService.checkFirstRun();
   }
 }
