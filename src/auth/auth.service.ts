@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
+/* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // src/auth/auth.service.ts
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { DeepPartial, Equal, Repository } from 'typeorm';
+import { Equal } from 'typeorm';
 import { SupabaseService } from '../supabase/supabase.service';
 import { User } from '../user/entities/user.entity';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
-
+import { userRoles } from '../common/constants';
 @Injectable()
 export class AuthService {
   constructor(
@@ -27,39 +29,8 @@ export class AuthService {
       where: { email: Equal(user.email) },
     });
     if (user.role !== 'user') {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Not allowed');
     }
-    if (idExists || emailExists) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-    const { data, error } = await this.supabaseService
-      .getClient()
-      .auth.signUp({ email, password });
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    const { password: userPassword, ...userToSave } = user;
-    await this.usersService.create(userToSave);
-
-    return {
-      user: userToSave,
-      accessToken: data?.session?.access_token,
-    };
-  }
-
-  async signUpAdmin(user: CreateUserDto) {
-    const email = user.email;
-    const password = user.password;
-    const idExists = await this.usersService.findOne({
-      where: { identificationNumber: Equal(user.identificationNumber) },
-    });
-    const emailExists = await this.usersService.findOne({
-      where: { email: Equal(user.email) },
-    });
-
-    await this.supabaseService;
     if (idExists || emailExists) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -81,9 +52,51 @@ export class AuthService {
   }
 
   /**
+   * TODO: SAME BEHAVIOR AS signIn METHOD
+   */
+  async signUpAdmin(user: CreateUserDto) {
+    const email = user.email;
+    const password = user.password;
+    const idExists = await this.usersService.findOne({
+      where: { identificationNumber: Equal(user.identificationNumber) },
+    });
+    const emailExists = await this.usersService.findOne({
+      where: { email: Equal(user.email) },
+    });
+
+    this.supabaseService;
+    if (idExists || emailExists) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    const { data, error } = await this.supabaseService
+      .getClient()
+      .auth.signUp({ email, password });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const { password: userPassword, ...userToSave } = user;
+    await this.usersService.create({
+      ...userToSave,
+      role: userRoles.ADMIN,
+    });
+
+    return {
+      user: {
+        ...userToSave,
+        role: user.role.toLocaleLowerCase(),
+      },
+      accessToken: data?.session?.access_token,
+    };
+  }
+
+  /**
    * Sign in a user with email and password
+   * TODO: CHECK THIS BEHAVIOR: WHEN A USER IS SIGNIN IN, IT FIRST SIGNS THE USER CORRECTLY THEN THROWS AN ERROR
    */
   async signIn(identification: string, password: string) {
+    console.log(identification, password);
     const user =
       await this.usersService.findOneByIdentification(identification);
     if (!user) {
@@ -106,7 +119,12 @@ export class AuthService {
     // await this.sessionRepository.save(session);
 
     return {
-      user: user,
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        email: user.email,
+      },
       accessToken: data.session.access_token,
       refreshToken: data.session.refresh_token,
     };
@@ -114,6 +132,7 @@ export class AuthService {
 
   /**
    * Refresh a user's session using the refresh token
+   * TODO: CHECK THIS BEHAVIOR
    */
   async refreshToken(refreshToken: string) {
     const { data, error } = await this.supabaseService

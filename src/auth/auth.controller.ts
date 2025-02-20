@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 // src/auth/auth.controller.ts
 import {
   Controller,
@@ -23,9 +27,10 @@ export class AuthController {
   @Post('signup-admin')
   @UseGuards(AuthGuard)
   async signUpAdmin(@Body() user: CreateUserDto, @Req() request: Request) {
-    const accessToken = request.headers['authorization']?.split(' ')[1];
+    const accessToken: string = request.headers['authorization']?.split(' ')[1];
     const decodedToken = await this.authService.validateUser(accessToken);
-    if (decodedToken.user?.role !== 'admin') {
+
+    if (decodedToken.user?.role?.toLocaleLowerCase() !== 'admin') {
       throw new UnauthorizedException(
         'You are not authorized to perform this action',
       );

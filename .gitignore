@@ -4,6 +4,8 @@ dist/
 dist/tsconfig.build.tsbuildinfo
 npm-debug.log
 yarn-error.log
+package-lock.json
+yarn.lock
 
 # Laravel 4 specific
 bootstrap/compiled.php
