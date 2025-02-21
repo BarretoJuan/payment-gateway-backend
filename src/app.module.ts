@@ -10,6 +10,8 @@ import { TransactionModule } from './transaction/transaction.module';
 import { UserCourseModule } from './user-course/user-course.module';
 import { AuthModule } from './auth/auth.module';
 import { SupabaseService } from './supabase/supabase.service';
+import { CompanyModule } from './company/company.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -28,6 +30,7 @@ import { SupabaseService } from './supabase/supabase.service';
     TransactionModule,
     UserCourseModule,
     AuthModule,
+    CompanyModule,
   ],
   controllers: [AppController],
   providers: [AppService, SupabaseService],

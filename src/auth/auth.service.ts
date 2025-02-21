@@ -9,11 +9,15 @@ import { User } from '../user/entities/user.entity';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
 import { userRoles } from '../common/constants';
+import { CompanyService } from 'src/company/company.service';
+import { CreateCompanyDto } from 'src/company/dto/create-company.dto';
+
 @Injectable()
 export class AuthService {
   constructor(
     private readonly supabaseService: SupabaseService,
     private readonly usersService: UserService,
+    private readonly companyService: CompanyService,
   ) {}
 
   /**
@@ -194,5 +198,48 @@ export class AuthService {
       data: data.user,
       user: userDb,
     };
+  }
+
+  /**
+   * Check if this is the first run of the application by retrieving a count of users in the database:  If there are no users, then it is the first run
+   */
+  async checkFirstRun() {
+    const numberOfUsers = (await this.usersService.findAll()).length;
+
+    // Negate the boolean value of numberOfUsers to return true if there are no users in the database and false if there are users.
+
+    return {
+      isFirstRun: !numberOfUsers,
+    };
+  }
+
+  async createCompany({
+    name,
+    address,
+    email,
+    telephone_number,
+    description,
+  }: CreateCompanyDto) {
+    const { isFirstRun } = await this.checkFirstRun();
+
+    if (!isFirstRun) {
+      throw new UnauthorizedException('Company already created');
+    }
+    const company = await this.companyService.create({
+      name,
+      address,
+      email,
+      telephone_number,
+      description,
+    });
+
+    return company;
+  }
+
+  async getCompany() {
+    const companies = await this.companyService.findAll();
+    const company = companies.length > 0 ? companies[0] : null;
+
+    return company;
   }
 }
