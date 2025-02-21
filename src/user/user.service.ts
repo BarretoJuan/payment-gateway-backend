@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto, SaveUserDto } from './dto/create-user.dto';
+import { SaveUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Equal, FindOneOptions, Repository } from 'typeorm';
@@ -27,12 +27,12 @@ export class UserService {
     });
   }
 
-  findOne(findOneOptions: FindOneOptions<User>) {
-    return this.usersRepository.findOne(findOneOptions);
+  async findOne(findOneOptions: FindOneOptions<User>) {
+    return await this.usersRepository.findOne(findOneOptions);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    return await this.usersRepository.update(id, updateUserDto);
   }
 
   remove(id: number) {
