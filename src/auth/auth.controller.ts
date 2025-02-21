@@ -15,6 +15,7 @@ import {
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
 import { CreateUserDto } from '../user/dto/create-user.dto';
+import { CreateCompanyDto } from 'src/company/dto/create-company.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -55,12 +56,27 @@ export class AuthController {
   @Post('logout')
   @UseGuards(AuthGuard) // Protect this route with the AuthGuard
   async logout(@Req() request: Request) {
-    const accessToken = request.headers['authorization']?.split(' ')[1];
+    const accessToken: string = request.headers['authorization']?.split(' ')[1];
     return this.authService.logout(accessToken);
   }
 
   @Get('check-first-run')
   async checkFirstRun() {
     return this.authService.checkFirstRun();
+  }
+
+  /**
+   * Create a new company
+   * @param company
+   * @returns Company
+   */
+  @Post('create-company')
+  async createCompany(@Body() company: CreateCompanyDto) {
+    return this.authService.createCompany(company);
+  }
+
+  @Get('company')
+  async getCompany() {
+    return this.authService.getCompany();
   }
 }
