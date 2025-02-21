@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -6,11 +7,12 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Equal } from 'typeorm';
 import { SupabaseService } from '../supabase/supabase.service';
 import { User } from '../user/entities/user.entity';
-import { CreateUserDto } from '../user/dto/create-user.dto';
+import { CreateUserDto, SaveUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
 import { userRoles } from '../common/constants';
 import { CompanyService } from 'src/company/company.service';
 import { CreateCompanyDto } from 'src/company/dto/create-company.dto';
+import { UpdateUserDto } from 'src/user/dto/update-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -93,6 +95,13 @@ export class AuthService {
       },
       accessToken: data?.session?.access_token,
     };
+  }
+
+  async signUpOperator({ id, role }: { id: string; role: UpdateUserDto['role'] }) {
+    if (!role) {
+      throw new UnauthorizedException('Role is required');
+    }
+    return await this.usersService.update(id, { role });
   }
 
   /**
