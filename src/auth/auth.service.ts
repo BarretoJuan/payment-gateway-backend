@@ -220,6 +220,11 @@ export class AuthService {
     telephone_number,
     description,
   }: CreateCompanyDto) {
+    const { isFirstRun } = await this.checkFirstRun();
+
+    if (!isFirstRun) {
+      throw new UnauthorizedException('Company already created');
+    }
     const company = await this.companyService.create({
       name,
       address,
