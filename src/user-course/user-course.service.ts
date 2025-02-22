@@ -18,7 +18,7 @@ export class UserCourseService {
 
   async findAll() {
     return await this.userCoursesRepository.find({
-      relations: ['user', 'course'], where: { status: 'cancelled'}
+      relations: ['user', 'course'], where: { status: 'cancelled'} //auditing purposes
     });
   }
 

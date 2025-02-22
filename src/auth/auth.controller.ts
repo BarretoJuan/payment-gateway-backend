@@ -92,6 +92,17 @@ export class AuthController {
     return this.authService.createCompany(company);
   }
 
+  /**
+   * Signs up the first admin
+   * @returns Admin creation response
+   * Checks if this is the first run of the application
+   * If it is, it creates the first admin
+   */
+  @Post('first-signup')
+  async firstSignUp(@Body() user: CreateUserDto) {
+    return this.authService.signUpAdminFirstRun(user);
+  }
+
   @Get('company')
   async getCompany() {
     return this.authService.getCompany();

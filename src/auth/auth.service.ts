@@ -245,6 +245,14 @@ export class AuthService {
     return company;
   }
 
+  async signUpAdminFirstRun(user: CreateUserDto) {
+    const { isFirstRun } = await this.checkFirstRun();
+    if (!isFirstRun) {
+      throw new UnauthorizedException('root admin already created');
+    }
+    return this.signUpAdmin(user);
+  }
+
   async getCompany() {
     const companies = await this.companyService.findAll();
     const company = companies.length > 0 ? companies[0] : null;

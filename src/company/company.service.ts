@@ -13,8 +13,8 @@ export class CompanyService {
   ) {}
 
   create(createCompanyDto: CreateCompanyDto): Promise<Company> {
-    const company = this.companyRepository.create(createCompanyDto);
-    return this.companyRepository.save(company);
+    const company = this.companyRepository.save(createCompanyDto);
+    return company;
   }
 
   findAll(): Promise<Company[]> {
