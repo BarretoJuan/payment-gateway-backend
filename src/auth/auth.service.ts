@@ -148,6 +148,9 @@ export class AuthService {
    * TODO: CHECK THIS BEHAVIOR
    */
   async refreshToken(refreshToken: string) {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Invalid Refresh Token: Refresh Token Not Found');
+    }
     const { data, error } = await this.supabaseService
       .getClient()
       .auth.refreshSession({ refresh_token: refreshToken });
@@ -156,17 +159,14 @@ export class AuthService {
       throw new Error(error.message);
     }
 
-    // // Update session in database
-    // const session = await this.sessionRepository.findOne({
-    //   where: { refreshToken },
-    // });
-    // if (session) {
-    //   session.accessToken = data.session?.access_token;
-    //   session.refreshToken = data.session?.refresh_token;
-    //   await this.sessionRepository.save(session);
-    // }
-
-    return data;
+    const response =  {
+      accessToken: data.session?.access_token, 
+      refreshToken:  data.session?.refresh_token, 
+      expiresIn: data.session?.expires_in, 
+      expiresAt: data.session?.expires_at, 
+      tokenType: data.session?.token_type
+    };
+    return response;
   }
 
   /**
