@@ -32,7 +32,7 @@ export class CourseController {
   @Get(':id')
   @UseGuards(AuthGuard)
   findOne(@Param('id') id: string) {
-    return this.courseService.findOne(+id);
+    return this.courseService.findOne({where: {id}});
   }
 
   @Patch(':id')

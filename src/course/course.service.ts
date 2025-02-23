@@ -3,7 +3,7 @@ import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Courses } from './entities/course.entity';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 
 @Injectable()
 export class CourseService {
@@ -19,9 +19,9 @@ export class CourseService {
   async findAll() {
     return await this.coursesRepository.find();
   }
-
-  findOne(id: number) {
-    return `This action returns a #${id} course`;
+  
+ async findOne(findOneOptions: FindOneOptions<Courses>) {
+    return await this.coursesRepository.findOne(findOneOptions);
   }
 
   update(id: number, updateCourseDto: UpdateCourseDto) {

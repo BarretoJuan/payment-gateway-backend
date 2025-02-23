@@ -23,6 +23,12 @@ export class UserCourseController {
     return this.userCourseService.create(createUserCourseDto);
   }
 
+  @Post('decode')
+  decodeGatewayToken(@Body() token: {token: string}) {
+    console.log("token", token);
+    return this.userCourseService.decodeGatewayToken(token.token);
+  }
+
   @Get()
   @UseGuards(AuthGuard)
   findAll() {

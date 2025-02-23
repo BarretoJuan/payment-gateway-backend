@@ -38,6 +38,9 @@ export class UserCourse {
     @Column('varchar', { name: 'cancellation_reason', nullable: true })
     cancellationReason: string | null;
 
+    @Column('varchar', { name: 'token', nullable: true })
+    token: string | null;
+
   @ManyToOne(() => Courses, (courses) => courses.userCourses, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
