@@ -1,14 +1,14 @@
 // src/auth/auth.module.ts
-import { forwardRef, Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { SupabaseService } from '../supabase/supabase.service';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
-import { User } from '../user/entities/user.entity';
-import { Company } from 'src/company/entities/company.entity';
-import { UserModule } from '../user/user.module';
-import { CompanyService } from 'src/company/company.service';
-import { CompanyModule } from 'src/company/company.module';
+import { forwardRef, Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { SupabaseService } from "../supabase/supabase.service";
+import { AuthService } from "./auth.service";
+import { AuthController } from "./auth.controller";
+import { User } from "../user/entities/user.entity";
+import { Company } from "src/company/entities/company.entity";
+import { UserModule } from "../user/user.module";
+import { CompanyService } from "src/company/company.service";
+import { CompanyModule } from "src/company/company.module";
 
 @Module({
   imports: [

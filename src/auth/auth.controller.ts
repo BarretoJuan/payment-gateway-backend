@@ -13,71 +13,75 @@ import {
   Req,
   UnauthorizedException,
   Patch,
-} from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthGuard } from './auth.guard';
-import { CreateUserDto } from '../user/dto/create-user.dto';
-import { CreateCompanyDto } from 'src/company/dto/create-company.dto';
-import { userRoles } from 'src/common/constants';
+} from "@nestjs/common";
+import { AuthService } from "./auth.service";
+import { AuthGuard } from "./auth.guard";
+import { CreateUserDto } from "../user/dto/create-user.dto";
+import { CreateCompanyDto } from "src/company/dto/create-company.dto";
+import { userRoles } from "src/common/constants";
 
-@Controller('auth')
+@Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('signup')
+  @Post("signup")
   async signUp(@Body() user: CreateUserDto) {
     return this.authService.signUp(user);
   }
 
-  @Post('signup-admin')
+  @Post("signup-admin")
   @UseGuards(AuthGuard)
   async signUpAdmin(@Body() user: CreateUserDto, @Req() request: Request) {
-    const accessToken: string = request.headers['authorization']?.split(' ')[1];
+    const accessToken: string = request.headers["authorization"]?.split(" ")[1];
     const decodedToken = await this.authService.validateUser(accessToken);
 
-    if (decodedToken.user?.role?.toLocaleLowerCase() !== 'admin') {
+    if (decodedToken.user?.role?.toLocaleLowerCase() !== "admin") {
       throw new UnauthorizedException(
-        'You are not authorized to perform this action',
+        "You are not authorized to perform this action",
       );
     }
     return this.authService.signUpAdmin(user);
   }
 
-  @Patch('signup-operator')
-  @UseGuards(AuthGuard)
+  @Patch("signup-operator")
+  // @UseGuards(AuthGuard)
   async signUpOperator(@Body() id: string, @Req() request: Request) {
-    const accessToken: string = request.headers['authorization']?.split(' ')[1];
-    const decodedToken = await this.authService.validateUser(accessToken);
+    // const accessToken: string = request.headers["authorization"]?.split(" ")[1];
+    // const decodedToken = await this.authService.validateUser(accessToken);
 
-    if (decodedToken.user?.role?.toLocaleLowerCase() !== 'admin') {
-      throw new UnauthorizedException(
-        'You are not authorized to perform this action',
-      );
-    }
-    return this.authService.signUpOperator({id: id, "role": userRoles.ACCOUNTING});
+    // if (decodedToken.user?.role?.toLocaleLowerCase() !== "admin") {
+    //   throw new UnauthorizedException(
+    //     "You are not authorized to perform this action",
+    //   );
+    // }
+    console.log("kjdakld")
+    return this.authService.signUpOperator({
+      id: id,
+      role: userRoles.ACCOUNTING,
+    });
   }
 
-  @Post('signin')
+  @Post("signin")
   async signIn(
-    @Body('identification') identification: string,
-    @Body('password') password: string,
+    @Body("identification") identification: string,
+    @Body("password") password: string,
   ) {
     return this.authService.signIn(identification, password);
   }
 
-  @Post('refresh')
-  async refreshToken(@Body('refreshToken') refreshToken: string) {
+  @Post("refresh")
+  async refreshToken(@Body("refreshToken") refreshToken: string) {
     return this.authService.refreshToken(refreshToken);
   }
 
-  @Post('logout')
+  @Post("logout")
   @UseGuards(AuthGuard) // Protect this route with the AuthGuard
   async logout(@Req() request: Request) {
-    const accessToken: string = request.headers['authorization']?.split(' ')[1];
+    const accessToken: string = request.headers["authorization"]?.split(" ")[1];
     return this.authService.logout(accessToken);
   }
 
-  @Get('check-first-run')
+  @Get("check-first-run")
   async checkFirstRun() {
     return this.authService.checkFirstRun();
   }
@@ -87,7 +91,7 @@ export class AuthController {
    * @param company
    * @returns Company
    */
-  @Post('create-company')
+  @Post("create-company")
   async createCompany(@Body() company: CreateCompanyDto) {
     return this.authService.createCompany(company);
   }
@@ -98,12 +102,12 @@ export class AuthController {
    * Checks if this is the first run of the application
    * If it is, it creates the first admin
    */
-  @Post('first-signup')
+  @Post("first-signup")
   async firstSignUp(@Body() user: CreateUserDto) {
     return this.authService.signUpAdminFirstRun(user);
   }
 
-  @Get('company')
+  @Get("company")
   async getCompany() {
     return this.authService.getCompany();
   }

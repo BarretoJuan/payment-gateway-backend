@@ -7,13 +7,13 @@ import {
   Param,
   Delete,
   UseGuards,
-} from '@nestjs/common';
-import { TransactionService } from './transaction.service';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import { AuthGuard } from '../auth/auth.guard';
+} from "@nestjs/common";
+import { TransactionService } from "./transaction.service";
+import { CreateTransactionDto } from "./dto/create-transaction.dto";
+import { UpdateTransactionDto } from "./dto/update-transaction.dto";
+import { AuthGuard } from "../auth/auth.guard";
 
-@Controller('transaction')
+@Controller("transaction")
 export class TransactionController {
   constructor(private readonly transactionService: TransactionService) {}
 
@@ -30,23 +30,23 @@ export class TransactionController {
   }
 
   @UseGuards(AuthGuard)
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Get(":id")
+  findOne(@Param("id") id: string) {
     return this.transactionService.findOne(+id);
   }
 
   @UseGuards(AuthGuard)
-  @Patch(':id')
+  @Patch(":id")
   update(
-    @Param('id') id: string,
+    @Param("id") id: string,
     @Body() updateTransactionDto: UpdateTransactionDto,
   ) {
     return this.transactionService.update(+id, updateTransactionDto);
   }
 
   @UseGuards(AuthGuard)
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @Delete(":id")
+  remove(@Param("id") id: string) {
     return this.transactionService.remove(+id);
   }
 }

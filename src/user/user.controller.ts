@@ -7,14 +7,14 @@ import {
   Param,
   Delete,
   UseGuards,
-} from '@nestjs/common';
-import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { FindOneOptions } from 'typeorm';
-import { AuthGuard } from '../auth/auth.guard';
+} from "@nestjs/common";
+import { UserService } from "./user.service";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { FindOneOptions } from "typeorm";
+import { AuthGuard } from "../auth/auth.guard";
 
-@Controller('user')
+@Controller("user")
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -30,21 +30,21 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @Get(':id')
+  @Get(":id")
   @UseGuards(AuthGuard)
   findOne(@Body() options: FindOneOptions) {
     return this.userService.findOne(options);
   }
 
-  @Patch(':id')
+  @Patch(":id")
   @UseGuards(AuthGuard)
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto);
   }
 
-  @Delete(':id')
+  @Delete(":id")
   @UseGuards(AuthGuard)
-  remove(@Param('id') id: string) {
+  remove(@Param("id") id: string) {
     return this.userService.remove(+id);
   }
 }

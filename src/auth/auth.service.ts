@@ -3,16 +3,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // src/auth/auth.service.ts
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { Equal } from 'typeorm';
-import { SupabaseService } from '../supabase/supabase.service';
-import { User } from '../user/entities/user.entity';
-import { CreateUserDto, SaveUserDto } from '../user/dto/create-user.dto';
-import { UserService } from '../user/user.service';
-import { userRoles } from '../common/constants';
-import { CompanyService } from 'src/company/company.service';
-import { CreateCompanyDto } from 'src/company/dto/create-company.dto';
-import { UpdateUserDto } from 'src/user/dto/update-user.dto';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Equal } from "typeorm";
+import { SupabaseService } from "../supabase/supabase.service";
+import { User } from "../user/entities/user.entity";
+import { CreateUserDto, SaveUserDto } from "../user/dto/create-user.dto";
+import { UserService } from "../user/user.service";
+import { userRoles } from "../common/constants";
+import { CompanyService } from "src/company/company.service";
+import { CreateCompanyDto } from "src/company/dto/create-company.dto";
+import { UpdateUserDto } from "src/user/dto/update-user.dto";
 
 @Injectable()
 export class AuthService {
@@ -34,11 +34,11 @@ export class AuthService {
     const emailExists = await this.usersService.findOne({
       where: { email: Equal(user.email) },
     });
-    if (user.role !== 'user') {
-      throw new UnauthorizedException('Not allowed');
+    if (user.role !== "user") {
+      throw new UnauthorizedException("Not allowed");
     }
     if (idExists || emailExists) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
     const { data, error } = await this.supabaseService
       .getClient()
@@ -72,7 +72,7 @@ export class AuthService {
 
     this.supabaseService;
     if (idExists || emailExists) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
     const { data, error } = await this.supabaseService
       .getClient()
@@ -97,10 +97,17 @@ export class AuthService {
     };
   }
 
-  async signUpOperator({ id, role }: { id: string; role: UpdateUserDto['role'] }) {
+  async signUpOperator({
+    id,
+    role,
+  }: {
+    id: string;
+    role: UpdateUserDto["role"];
+  }) {
     if (!role) {
-      throw new UnauthorizedException('Role is required');
+      throw new UnauthorizedException("Role is required");
     }
+    console.log("llegue aqui")
     return await this.usersService.update(id, { role });
   }
 
@@ -113,7 +120,7 @@ export class AuthService {
     const user =
       await this.usersService.findOneByIdentification(identification);
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     const { data, error } = await this.supabaseService
@@ -121,7 +128,7 @@ export class AuthService {
       .auth.signInWithPassword({ email: user.email, password });
 
     if (error) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     // // Save session to database
@@ -149,7 +156,9 @@ export class AuthService {
    */
   async refreshToken(refreshToken: string) {
     if (!refreshToken) {
-      throw new UnauthorizedException('Invalid Refresh Token: Refresh Token Not Found');
+      throw new UnauthorizedException(
+        "Invalid Refresh Token: Refresh Token Not Found",
+      );
     }
     const { data, error } = await this.supabaseService
       .getClient()
@@ -159,12 +168,12 @@ export class AuthService {
       throw new Error(error.message);
     }
 
-    const response =  {
-      accessToken: data.session?.access_token, 
-      refreshToken:  data.session?.refresh_token, 
-      expiresIn: data.session?.expires_in, 
-      expiresAt: data.session?.expires_at, 
-      tokenType: data.session?.token_type
+    const response = {
+      accessToken: data.session?.access_token,
+      refreshToken: data.session?.refresh_token,
+      expiresIn: data.session?.expires_in,
+      expiresAt: data.session?.expires_at,
+      tokenType: data.session?.token_type,
     };
     return response;
   }
@@ -182,7 +191,7 @@ export class AuthService {
     // // Delete session from database
     // await this.sessionRepository.delete({ accessToken });
 
-    return { message: 'Logged out successfully' };
+    return { message: "Logged out successfully" };
   }
 
   /**
@@ -232,7 +241,7 @@ export class AuthService {
     const { isFirstRun } = await this.checkFirstRun();
 
     if (!isFirstRun) {
-      throw new UnauthorizedException('Company already created');
+      throw new UnauthorizedException("Company already created");
     }
     const company = await this.companyService.create({
       name,
@@ -248,7 +257,7 @@ export class AuthService {
   async signUpAdminFirstRun(user: CreateUserDto) {
     const { isFirstRun } = await this.checkFirstRun();
     if (!isFirstRun) {
-      throw new UnauthorizedException('root admin already created');
+      throw new UnauthorizedException("root admin already created");
     }
     return this.signUpAdmin(user);
   }

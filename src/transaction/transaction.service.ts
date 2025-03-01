@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Transaction } from './entities/transaction.entity';
-import { Repository } from 'typeorm';
+import { Injectable } from "@nestjs/common";
+import { CreateTransactionDto } from "./dto/create-transaction.dto";
+import { UpdateTransactionDto } from "./dto/update-transaction.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Transaction } from "./entities/transaction.entity";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class TransactionService {
@@ -13,12 +13,12 @@ export class TransactionService {
   ) {}
 
   create(createTransactionDto: CreateTransactionDto) {
-    return 'This action adds a new transaction';
+    return "This action adds a new transaction";
   }
 
   async findAll() {
     return await this.transactionsRepository.find({
-      relations: ['course', 'user', 'validatedBy'],
+      relations: ["course", "user", "validatedBy"],
     });
   }
 
