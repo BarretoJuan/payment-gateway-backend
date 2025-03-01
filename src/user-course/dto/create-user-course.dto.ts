@@ -1,5 +1,4 @@
 export class CreateUserCourseDto {
-
-    courseId: string;
-    userId: string;
+  courseId: string;
+  userId: string;
 }

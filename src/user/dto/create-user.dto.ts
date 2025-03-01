@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { IsNotEmpty, IsEmail, length, MinLength, Min } from 'class-validator';
-import { userRoles } from 'src/common/constants';
-import { Long } from 'typeorm';
+import { IsNotEmpty, IsEmail, length, MinLength, Min } from "class-validator";
+import { userRoles } from "src/common/constants";
+import { Long } from "typeorm";
 
 export class SaveUserDto {
   @IsNotEmpty()

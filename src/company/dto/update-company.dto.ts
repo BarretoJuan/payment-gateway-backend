@@ -4,5 +4,4 @@ export class UpdateCompanyDto {
   telephone_number?: string;
   email?: string;
   description?: string;
-
 }
