@@ -12,6 +12,7 @@ import { CourseService } from "./course.service";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { AuthGuard } from "../auth/auth.guard";
+import { Equal } from "typeorm";
 
 @Controller("course")
 export class CourseController {
@@ -32,18 +33,18 @@ export class CourseController {
   @Get(":id")
   @UseGuards(AuthGuard)
   findOne(@Param("id") id: string) {
-    return this.courseService.findOne({ where: { id } });
+    return this.courseService.findOne({ where: { id: Equal(id) } });
   }
 
   @Patch(":id")
   @UseGuards(AuthGuard)
   update(@Param("id") id: string, @Body() updateCourseDto: UpdateCourseDto) {
-    return this.courseService.update(+id, updateCourseDto);
+    return this.courseService.update(id, updateCourseDto);
   }
 
   @Delete(":id")
   @UseGuards(AuthGuard)
   remove(@Param("id") id: string) {
-    return this.courseService.remove(+id);
+    return this.courseService.remove(id);
   }
 }

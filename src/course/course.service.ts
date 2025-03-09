@@ -3,7 +3,7 @@ import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Courses } from "./entities/course.entity";
-import { FindOneOptions, Repository } from "typeorm";
+import { DeepPartial, FindOneOptions, Repository } from "typeorm";
 
 @Injectable()
 export class CourseService {
@@ -12,8 +12,9 @@ export class CourseService {
     private coursesRepository: Repository<Courses>,
   ) {}
 
-  create(createCourseDto: CreateCourseDto) {
-    return "This action adds a new course";
+  create(createCourseDto: DeepPartial<Courses>) {
+    const course = this.coursesRepository.save(createCourseDto);
+    return course;
   }
 
   async findAll() {
@@ -24,11 +25,11 @@ export class CourseService {
     return await this.coursesRepository.findOne(findOneOptions);
   }
 
-  update(id: number, updateCourseDto: UpdateCourseDto) {
-    return `This action updates a #${id} course`;
+  async update(id: string, updateCourseDto: DeepPartial<Courses>) {
+    return await this.coursesRepository.update(id, updateCourseDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} course`;
+  async remove(id: string) {
+    return await this.coursesRepository.update(id, { deletedAt: Date.now() });
   }
 }
