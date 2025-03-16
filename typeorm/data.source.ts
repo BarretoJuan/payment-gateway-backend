@@ -13,6 +13,7 @@ import { AlterTableUserAddBalance1740002342422 } from './1740002342422-alter-tab
 import { AlterTableUserAddCancelledStatus1740002705637 } from './1740002705637-alter-table-user-add-cancelled-status'
 import { AlterTableUserAddCancelledStatus1740003618459 } from './1740003618459-alter-table-user-add-cancelled-status'
 import { AlterTableUserCourseAddToken1740274118833 } from "./1740274118833-alter-table-user-course-add-token";
+import { Installment } from "../src/installment/entities/installment.entity";
 
 
 
@@ -26,7 +27,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_NAME,
     logging: true,
     synchronize: false,
-    entities: [User, UserCourse, Courses, Transaction, Company],
+    entities: [User, UserCourse, Courses, Transaction, Company, Installment],
     subscribers: [],
     migrations: [InitialMigration1739075935415, AlterTableUuid1739076074487, DeleteTableOperators1739114581240,AlterTableUserAddBalance1740002342422, AlterTableUserAddCancelledStatus1740002705637, AlterTableUserAddCancelledStatus1740003618459, AlterTableUserCourseAddToken1740274118833],
     migrationsTableName: "migrations_table",

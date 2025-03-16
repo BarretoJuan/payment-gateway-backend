@@ -27,15 +27,18 @@ export class UserCourse {
   @Column("enum", {
     name: "status",
     nullable: true,
-    enum: ["acquired", "not_acquired", "cancelled"],
+    enum: ["acquired", "not_acquired", "cancelled", "expired"],
   })
-  status: "acquired" | "not_acquired" | "cancelled" | null;
+  status: "acquired" | "not_acquired" | "cancelled" | "expired" | null;
 
-  @Column("varchar", { name: "cancellation_reason", nullable: true })
+  @Column("character varying", { name: "cancellation_reason", nullable: true })
   cancellationReason: string | null;
 
-  @Column("varchar", { name: "token", nullable: true })
+  @Column("character varying", { name: "token", nullable: true })
   token: string | null;
+
+  @Column("bigint", { name: "balance", default: () => "'0'" })
+  balance: string;
 
   @ManyToOne(() => Courses, (courses) => courses.userCourses, {
     onDelete: "CASCADE",

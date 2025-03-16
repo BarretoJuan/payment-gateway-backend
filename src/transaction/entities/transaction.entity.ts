@@ -63,7 +63,7 @@ export class Transaction {
   @JoinColumn([{ name: "user_id", referencedColumnName: "id" }])
   user: User;
 
-  @ManyToOne(() => User, (user) => user.validatedTransactions, {
+  @ManyToOne(() => User, (user) => user.transactions2, {
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
   })

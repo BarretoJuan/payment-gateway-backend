@@ -11,6 +11,7 @@ import { UserCourseModule } from "./user-course/user-course.module";
 import { AuthModule } from "./auth/auth.module";
 import { SupabaseService } from "./supabase/supabase.service";
 import { CompanyModule } from "./company/company.module";
+import { InstallmentModule } from './installment/installment.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { CompanyModule } from "./company/company.module";
     UserCourseModule,
     AuthModule,
     CompanyModule,
+    InstallmentModule,
   ],
   controllers: [AppController],
   providers: [AppService, SupabaseService],

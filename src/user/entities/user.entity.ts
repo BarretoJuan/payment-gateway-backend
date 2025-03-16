@@ -3,7 +3,11 @@ import { Transaction } from "../../transaction/entities/transaction.entity";
 import { UserCourse } from "../../user-course/entities/user-course.entity";
 
 @Index("USER_email_key", ["email"], { unique: true })
+@Index("UQ_c090db0477be7a25259805e37c2", ["email"], { unique: true })
 @Index("USER_pkey", ["id"], { unique: true })
+@Index("UQ_05349e17b520cd71c54b4977cf0", ["identificationNumber"], {
+  unique: true,
+})
 @Index("USER_identification_number_key", ["identificationNumber"], {
   unique: true,
 })
@@ -28,9 +32,6 @@ export class User {
   @Column("timestamp without time zone", { name: "deleted_at", nullable: true })
   deletedAt: Date | null;
 
-  @Column("character varying", { name: "email", unique: true })
-  email: string;
-
   @Column("character varying", { name: "identification_number", unique: true })
   identificationNumber: string;
 
@@ -40,8 +41,8 @@ export class User {
   @Column("character varying", { name: "last_name", nullable: true })
   lastName: string | null;
 
-  @Column("numeric", { name: "balance", nullable: true })
-  balance: number | null;
+  @Column("character varying", { name: "email", unique: true })
+  email: string;
 
   @Column("enum", {
     name: "role",
@@ -50,11 +51,14 @@ export class User {
   })
   role: "admin" | "accounting" | "user" | null;
 
+  @Column("numeric", { name: "balance", nullable: true })
+  balance: string | null;
+
   @OneToMany(() => Transaction, (transaction) => transaction.user)
   transactions: Transaction[];
 
   @OneToMany(() => Transaction, (transaction) => transaction.validatedBy)
-  validatedTransactions: Transaction[];
+  transactions2: Transaction[];
 
   @OneToMany(() => UserCourse, (userCourse) => userCourse.user)
   userCourses: UserCourse[];
