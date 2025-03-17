@@ -24,10 +24,13 @@ export class Installment {
   deletedAt: Date | null;
 
   @Column("date", { name: "date" })
-  date: string;
+  date: Date;
 
   @Column("integer", { name: "percentage" })
   percentage: number;
+
+  @Column('varchar',{ name: 'course_id'} )
+  courseId: string;
 
   @ManyToOne(() => Courses, (courses) => courses.installments, {
     onDelete: "CASCADE",

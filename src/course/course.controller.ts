@@ -12,7 +12,8 @@ import { CourseService } from "./course.service";
 import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { AuthGuard } from "../auth/auth.guard";
-import { Equal } from "typeorm";
+import { DeepPartial, Equal } from "typeorm";
+import { Courses } from "./entities/course.entity";
 
 @Controller("course")
 export class CourseController {
@@ -20,7 +21,7 @@ export class CourseController {
 
   @Post()
   @UseGuards(AuthGuard)
-  create(@Body() createCourseDto: CreateCourseDto) {
+  create(@Body() createCourseDto: DeepPartial<Courses>) {
     return this.courseService.create(createCourseDto);
   }
 

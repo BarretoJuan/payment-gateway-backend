@@ -1,7 +1,8 @@
 import { IsDate, IsNotEmpty, IsNumber, IsString, IsUUID, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Installment } from '../entities/installment.entity';
 
-export class CreateInstallmentDto {
+export class CreateInstallmentDto  {
   @IsNotEmpty()
   @IsString()
   @IsUUID()

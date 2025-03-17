@@ -3,7 +3,7 @@ import { CreateInstallmentDto } from './dto/create-installment.dto';
 import { UpdateInstallmentDto } from './dto/update-installment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Installment } from './entities/installment.entity';
-import { Equal, Repository } from 'typeorm';
+import { DeepPartial, Equal, Repository } from 'typeorm';
 import { Courses } from '../course/entities/course.entity';
 
 @Injectable()
@@ -15,8 +15,11 @@ export class InstallmentService {
     private coursesRepository: Repository<Courses>,
   ) {}
 
-  async create(createInstallmentDto: CreateInstallmentDto): Promise<Installment> {
+  async create(createInstallmentDto: DeepPartial<Installment>): Promise<Installment> {
     // Check if course exists
+    if(!createInstallmentDto.courseId || !createInstallmentDto.date || !createInstallmentDto.percentage) {
+      throw new Error('Missing parameters for a installment insertion');
+    }
     const course = await this.coursesRepository.findOne({ 
       where: { id: Equal(createInstallmentDto.courseId) } 
     });
@@ -32,7 +35,7 @@ export class InstallmentService {
 
     // Create new installment
     const installment = new Installment();
-    installment.date = createInstallmentDto.date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    installment.date = new Date(createInstallmentDto.date as string); // Format as YYYY-MM-DD
     installment.percentage = createInstallmentDto.percentage;
     installment.course = course;
 
@@ -63,7 +66,7 @@ export class InstallmentService {
 
     // Update fields if provided
     if (updateInstallmentDto.date) {
-      installment.date = updateInstallmentDto.date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+      installment.date = new Date(updateInstallmentDto.date);  // Format as YYYY-MM-DD
     }
 
     if (updateInstallmentDto.percentage) {
