@@ -5,6 +5,9 @@ dotenv.config();
 
 @Injectable()
 export class SupabaseService {
+  getStorage() {
+    throw new Error("Method not implemented.");
+  }
   private supabase: SupabaseClient;
 
   constructor() {

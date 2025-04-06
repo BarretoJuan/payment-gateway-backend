@@ -5,7 +5,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Courses } from "./entities/course.entity";
 import { DeepPartial, FindOneOptions, Repository } from "typeorm";
 import { InstallmentService } from "../installment/installment.service";
-import { CreateInstallmentDto } from "src/installment/dto/create-installment.dto";
+import { SupabaseService } from "../supabase/supabase.service";
 
 @Injectable()
 export class CourseService {
@@ -13,6 +13,7 @@ export class CourseService {
     @InjectRepository(Courses)
     private coursesRepository: Repository<Courses>,
     private readonly installmentService: InstallmentService,
+    private readonly supabaseService: SupabaseService,
   ) {}
 
   async create(createCourseDto: DeepPartial<Courses>) {
@@ -63,5 +64,26 @@ export class CourseService {
 
   async remove(id: string) {
     return await this.coursesRepository.update(id, { deletedAt: Date.now() });
+  }
+
+  async uploadFile(file: Express.Multer.File) {
+    this.supabaseService;
+    const { data, error } = await this.supabaseService
+      .getClient()
+      .storage.from("courses-images").upload(file.originalname, file.buffer, {
+        contentType: file.mimetype,
+      });
+      
+      if (error) {
+        throw new Error(`Failed to upload file: ${error.message}`);
+      }
+
+      const imagePath = data?.fullPath;
+      const url = this.supabaseService
+        .getClient()
+        .storage.from("courses-images").getPublicUrl(imagePath);
+
+      return url.data.publicUrl;
+
   }
 }

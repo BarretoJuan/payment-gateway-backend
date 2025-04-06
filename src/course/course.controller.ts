@@ -7,6 +7,9 @@ import {
   Param,
   Delete,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  Put,
 } from "@nestjs/common";
 import { CourseService } from "./course.service";
 import { CreateCourseDto } from "./dto/create-course.dto";
@@ -14,6 +17,7 @@ import { UpdateCourseDto } from "./dto/update-course.dto";
 import { AuthGuard } from "../auth/auth.guard";
 import { DeepPartial, Equal } from "typeorm";
 import { Courses } from "./entities/course.entity";
+import { FileInterceptor } from "@nestjs/platform-express";
 
 @Controller("course")
 export class CourseController {
@@ -29,6 +33,13 @@ export class CourseController {
   @UseGuards(AuthGuard)
   findAll() {
     return this.courseService.findAll();
+  }
+
+  @Put('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    console.log(file);
+    return await this.courseService.uploadFile(file);
   }
 
   @Get(":id")
