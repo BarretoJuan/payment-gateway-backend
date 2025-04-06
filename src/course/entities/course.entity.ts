@@ -27,8 +27,8 @@ name:string | null;
 @Column("character varying",{ name:"description",nullable:true })
 description:string | null;
 
-@Column("jsonb",{ name:"image",nullable:true })
-image:object | null;
+@Column("text",{ name:"image",nullable:true })
+image:string | null;
 
 @Column("enum",{ name:"payment_scheme",nullable:true,enum:["single_payment","installments"],default: () => "'single_payment'", })
 paymentScheme:"single_payment" | "installments" | null;

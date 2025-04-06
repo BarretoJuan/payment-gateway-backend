@@ -72,18 +72,19 @@ export class CourseService {
       .getClient()
       .storage.from("courses-images").upload(file.originalname, file.buffer, {
         contentType: file.mimetype,
+        upsert: true,
       });
       
       if (error) {
         throw new Error(`Failed to upload file: ${error.message}`);
       }
 
-      const imagePath = data?.fullPath;
+      const imagePath = data;
+
       const url = this.supabaseService
         .getClient()
-        .storage.from("courses-images").getPublicUrl(imagePath);
+        .storage.from("courses-images").getPublicUrl(imagePath.path);
 
-      return url.data.publicUrl;
-
+      return {url: url.data.publicUrl};
   }
 }
