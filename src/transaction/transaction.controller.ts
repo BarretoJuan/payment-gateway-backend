@@ -29,6 +29,23 @@ export class TransactionController {
     return this.transactionService.findAll();
   }
 
+  @Post("order")
+  async createOrder(@Body() body: { cart: any }): Promise<any> {
+    console.log("???????")
+    return await this.transactionService.createOrder(body.cart);
+  }
+
+  @Get('create-order')
+  async createOrder2() {
+    console.log("xddd");
+    return 'xddddd!!!';
+  }
+
+  @Post(':orderID/capture')
+  async captureOrder(@Param('orderID') orderID: string) {
+    return await this.transactionService.captureOrder(orderID);
+  }
+
   @UseGuards(AuthGuard)
   @Get(":id")
   findOne(@Param("id") id: string) {

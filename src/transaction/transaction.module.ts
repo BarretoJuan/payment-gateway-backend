@@ -4,9 +4,10 @@ import { TransactionController } from "./transaction.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Transaction } from "./entities/transaction.entity";
 import { AuthModule } from "../auth/auth.module";
+import { HttpModule } from "@nestjs/axios";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Transaction]), AuthModule],
+  imports: [TypeOrmModule.forFeature([Transaction]), AuthModule, HttpModule],
   controllers: [TransactionController],
   providers: [TransactionService],
 })

@@ -12,10 +12,12 @@ import { AuthModule } from "./auth/auth.module";
 import { SupabaseService } from "./supabase/supabase.service";
 import { CompanyModule } from "./company/company.module";
 import { InstallmentModule } from './installment/installment.module';
+import { HttpModule } from "@nestjs/axios";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    HttpModule,
     TypeOrmModule.forRoot({
       type: "postgres",
       host: process.env.DB_HOST,
