@@ -3,7 +3,7 @@ import { CreateUserCourseDto } from "./dto/create-user-course.dto";
 import { UpdateUserCourseDto } from "./dto/update-user-course.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserCourse } from "./entities/user-course.entity";
-import { Equal, Repository } from "typeorm";
+import { Equal, In, Repository } from "typeorm";
 import { CourseService } from "../course/course.service";
 import { UserService } from "../user/user.service";
 const jwt = require("jsonwebtoken");
@@ -44,6 +44,33 @@ export class UserCourseService {
     await this.userCoursesRepository.save(userCourse);
 
     return { message: "This action adds a new userCourse", token };
+  }
+
+  async findUserCourses(userId: number, status: "acquired" | "not_acquired" | "cancelled" | "expired" | "not_bought") {
+  if (status === 'not_bought') {
+    const allCourses = await this.coursesService.findAll();
+    const userCourses = await this.userCoursesRepository.find({
+      relations: ["course"],
+      where: { user: Equal(userId) },
+    });
+
+    const userCourseIds = userCourses.map((uc) => uc.course.id);
+    const notBoughtCourses = allCourses.filter(
+      (course) => !userCourseIds.includes(course.id)
+    );
+
+    return notBoughtCourses;
+  }
+  if (status !== null) {
+    const userCourses = await this.userCoursesRepository.find({
+      relations: ["user", "course"],
+      where: { 
+        user: Equal(userId), status : status 
+      },
+    });
+    return userCourses;
+  }
+  return [];
   }
 
   async decodeGatewayToken(token: string) {

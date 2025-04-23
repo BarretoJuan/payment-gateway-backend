@@ -58,6 +58,8 @@ export class CourseService {
     return await this.coursesRepository.findOne(findOneOptions);
   }
 
+  
+
   async update(id: string, updateCourseDto: DeepPartial<Courses>) {
     return await this.coursesRepository.update(id, updateCourseDto);
   }

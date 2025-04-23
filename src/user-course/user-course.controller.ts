@@ -29,6 +29,17 @@ export class UserCourseController {
     return this.userCourseService.decodeGatewayToken(token.token);
   }
 
+  @Post("get-user-courses-by-status")
+  @UseGuards(AuthGuard)
+  findUserCoursesByStatus(
+    @Body() body: { userId: number; status: "acquired" | "not_acquired" | "cancelled" | "expired" | "not_bought" },
+  ) {
+
+    return this.userCourseService.findUserCourses(body.userId, body.status);
+  }
+
+
+
   @Get()
   @UseGuards(AuthGuard)
   findAll() {
