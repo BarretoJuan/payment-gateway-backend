@@ -30,15 +30,11 @@ export class TransactionController {
   }
 
   @Post("order")
-  async createOrder(@Body() body: { cart: any }): Promise<any> {
-    console.log("???????")
-    return await this.transactionService.createOrder(body.cart);
-  }
-
-  @Get('create-order')
-  async createOrder2() {
-    console.log("xddd");
-    return 'xddddd!!!';
+  async createOrder(@Body() body: any): Promise<any> {
+    if (!body.price) {
+      throw new Error("Price is required");
+    }
+    return await this.transactionService.createOrder(body.price);
   }
 
   @Post(':orderID/capture')

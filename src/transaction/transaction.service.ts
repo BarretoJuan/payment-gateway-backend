@@ -62,7 +62,7 @@ export class TransactionService {
     return response.data.access_token;
   }
 
-  async createOrder(cart: any) {
+  async createOrder(price: number) {
     const accessToken = await this.generateAccessToken();
     const payload = {
       intent: 'CAPTURE',
@@ -70,7 +70,7 @@ export class TransactionService {
         {
           amount: {
             currency_code: 'USD',
-            value: '500.00',
+            value: price || 100,
           },
         },
       ],
