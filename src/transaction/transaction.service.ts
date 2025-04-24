@@ -74,20 +74,38 @@ export class TransactionService {
       orderPrice = 0;
     }
 
+    // 💰 Aplicar balance del usuario
+    const userBalance = user.balance ? +user.balance: 0;
+    let finalAmount = orderPrice;
+
+    if (userBalance >= orderPrice) {
+      user.balance = (userBalance - orderPrice).toString();
+      finalAmount = 0;
+      userCourse.balance = orderPrice.toString();
+      userCourse.status = 'acquired';
+      await this.userCourseService.update(userCourse.id, { balance: userCourse.balance, status: userCourse.status });
+
+    } else {
+      finalAmount = orderPrice - userBalance;
+      user.balance = '0';
+    }
+
+    await this.usersService.update(userId, { balance: user.balance });
+    createTransactionDto.amount = finalAmount.toString();
 
 
     if (createTransactionDto.paymentMethod === 'paypal') {
-      createTransactionDto.amount = orderPrice.toString();
       createTransactionDto.status = 'in_process';
       const order = await this.transactionsRepository.save(createTransactionDto);
     }
 
 
     else if (createTransactionDto.paymentMethod === 'zelle') {
-      createTransactionDto.amount = orderPrice.toString();
       createTransactionDto.status = 'ready_to_be_checked';
       const transaction = await this.transactionsRepository.save(createTransactionDto);
     }
+
+    return {orderPrice}
     
   }
 
