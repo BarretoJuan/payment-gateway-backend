@@ -3,7 +3,7 @@ import { CreateUserCourseDto } from "./dto/create-user-course.dto";
 import { UpdateUserCourseDto } from "./dto/update-user-course.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserCourse } from "./entities/user-course.entity";
-import { Equal, In, Repository } from "typeorm";
+import { DeepPartial, Equal, FindOneOptions, In, Repository } from "typeorm";
 import { CourseService } from "../course/course.service";
 import { UserService } from "../user/user.service";
 const jwt = require("jsonwebtoken");
@@ -97,12 +97,13 @@ export class UserCourseService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} userCourse`;
+  async findOne(findOneOptions: FindOneOptions<UserCourse>) {
+    return await this.userCoursesRepository.findOne(findOneOptions);
   }
 
-  update(id: number, updateUserCourseDto: UpdateUserCourseDto) {
-    return `This action updates a #${id} userCourse`;
+  update(id: string, updateUserCourseDto: DeepPartial<UserCourse>) {
+    return this.userCoursesRepository.update(id, updateUserCourseDto);
+    
   }
 
   remove(id: number) {

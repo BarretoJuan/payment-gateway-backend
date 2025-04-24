@@ -12,6 +12,8 @@ import { UserCourseService } from "./user-course.service";
 import { CreateUserCourseDto } from "./dto/create-user-course.dto";
 import { UpdateUserCourseDto } from "./dto/update-user-course.dto";
 import { AuthGuard } from "../auth/auth.guard";
+import { DeepPartial, Equal } from "typeorm";
+import { UserCourse } from "./entities/user-course.entity";
 
 @Controller("user-course")
 export class UserCourseController {
@@ -49,16 +51,16 @@ export class UserCourseController {
   @Get(":id")
   @UseGuards(AuthGuard)
   findOne(@Param("id") id: string) {
-    return this.userCourseService.findOne(+id);
+    return this.userCourseService.findOne({where: { id: Equal(id) }});
   }
 
   @Patch(":id")
   @UseGuards(AuthGuard)
   update(
     @Param("id") id: string,
-    @Body() updateUserCourseDto: UpdateUserCourseDto,
+    @Body() updateUserCourseDto: DeepPartial<UserCourse>,
   ) {
-    return this.userCourseService.update(+id, updateUserCourseDto);
+    return this.userCourseService.update(id, updateUserCourseDto);
   }
 
   @Delete(":id")

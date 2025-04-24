@@ -7,7 +7,11 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import { Transaction } from "./entities/transaction.entity";
-import { DeepPartial, Repository } from "typeorm";
+import { DeepPartial, Equal, Repository } from "typeorm";
+import { UserService } from "../user/user.service";
+import { CourseService } from "../course/course.service";
+import { UserCourseService } from "../user-course/user-course.service";
+import { validate } from "class-validator";
 
 @Injectable()
 export class TransactionService {
@@ -17,11 +21,135 @@ export class TransactionService {
     private readonly httpService: HttpService,
     @InjectRepository(Transaction)
     private transactionsRepository: Repository<Transaction>,
+    private readonly usersService: UserService,
+    private readonly coursesService: CourseService,
+    private readonly userCourseService: UserCourseService,
   ) {}
 
-  create(createTransactionDto: DeepPartial<Transaction>) {
+  async create(createTransactionDto: DeepPartial<Transaction>) {
+
+    const userId = createTransactionDto.user as string;
+    const courseId = createTransactionDto.course as string;
+
+    const user = await this.usersService.findOne({
+        where: { id: Equal(userId) },
+      });
+
+    const course = await this.coursesService.findOne({ where: { id: Equal(courseId)  }, relations: ["installments"] });
+
+
+    if (!user || !course) {
+      return "User or course not found";
+    }
+
+    const userCourse = await this.userCourseService.findOne({
+      where: { user: Equal(userId), course: Equal(courseId) },});
+
+    if (!userCourse) {
+      return "User course not found";
+    }
+
+    let orderPrice: number;
+
+    if (course.paymentScheme === 'single_payment' ) {
+      orderPrice = course.price ? +course.price : 0;
+    }
+
+    if (course.paymentScheme === 'installments' ) {
+      if (course.installments) {
+
+        const installments = course.installments;
+        let totalPercentage = 0;
+        for (const installment of installments) {
+          if (installment.percentage && installment.date <= new Date()) {
+            totalPercentage += +installment.percentage;
+          }
+        }
+        orderPrice = course.price ? (totalPercentage / 100 * +course.price) : 0;
+      } else {
+        orderPrice = 0;
+      }
+    }
+    else {
+      orderPrice = 0;
+    }
+
+
+
+    if (createTransactionDto.paymentMethod === 'paypal') {
+      createTransactionDto.amount = orderPrice.toString();
+      createTransactionDto.status = 'in_process';
+      const order = await this.transactionsRepository.save(createTransactionDto);
+    }
+
+
+    else if (createTransactionDto.paymentMethod === 'zelle') {
+      createTransactionDto.amount = orderPrice.toString();
+      createTransactionDto.status = 'ready_to_be_checked';
+      const transaction = await this.transactionsRepository.save(createTransactionDto);
+    }
     
   }
+
+  async updateTransactionStatus(id: string, status: "completed" | "rejected", validatedBy?: string) 
+   {
+    const transaction = await this.transactionsRepository.findOne({ where: { id: Equal(id) } });
+    if (!transaction) {
+      return "Transaction not found";
+    }
+
+    const userCourse = await this.userCourseService.findOne({
+      where: { user: Equal(transaction.user.id), course: Equal(transaction.course.id) }, relations : ["user", "course"] });
+
+    if (!userCourse) {
+      return "User course not found";
+    }
+    
+    let userOperator;
+    if (validatedBy) {
+       userOperator = await this.usersService.findOne({ where: { id: Equal(validatedBy) } });
+      if (!userOperator) {
+        return "User not found";
+      }
+      transaction.validatedBy = userOperator;
+    }
+
+    transaction.status = status;
+    transaction.updatedAt = new Date(); // Set to null if not already set
+    await this.transactionsRepository.save(transaction);
+    const transactionAmount = transaction.amount ? +transaction.amount : 0;
+    const coursePrice = transaction.course.price ? +transaction.course.price : 0;
+    let userCourseBalance = userCourse ? +userCourse.balance : 0;
+    if (transaction.status === 'completed') {
+    if (userCourseBalance < coursePrice) {
+      const remaining = coursePrice - userCourseBalance;
+      
+      if (transactionAmount > remaining) {
+        userCourseBalance += remaining;
+        await this.userCourseService.update(userCourse.id, {balance:  userCourseBalance.toString()});
+        const remainingTransactionAmount = transactionAmount - remaining;
+        const UserBalance = userCourse.user.balance ? +userCourse.user.balance : 0;
+        const newUserBalance = UserBalance + remainingTransactionAmount;
+        await this.usersService.update(userCourse.user.id, {balance: newUserBalance.toString()});
+        
+      }
+      else { 
+        userCourseBalance += transactionAmount;
+        await this.userCourseService.update(userCourse.id, {balance:  userCourseBalance.toString()});
+      }
+    }
+    else { 
+      await this.usersService.update(userCourse.user.id, {balance: userCourse.user.balance + transactionAmount.toString()});
+
+    }
+  }
+
+    return transaction;
+
+
+    
+  }     
+                                                                                                          
 
   async findAll() {
     return await this.transactionsRepository.find({

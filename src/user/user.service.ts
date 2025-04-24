@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { SaveUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Equal, FindOneOptions, Repository } from "typeorm";
+import { DeepPartial, Equal, FindOneOptions, Repository } from "typeorm";
 import { User } from "./entities/user.entity";
 
 @Injectable()
@@ -31,7 +31,7 @@ export class UserService {
     return await this.usersRepository.findOne(findOneOptions);
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: DeepPartial<User>) {
     return await this.usersRepository.update(id, updateUserDto);
   }
 
