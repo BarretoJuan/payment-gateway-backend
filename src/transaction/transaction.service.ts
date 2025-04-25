@@ -111,7 +111,7 @@ export class TransactionService {
 
   async updateTransactionStatus(id: string, status: "completed" | "rejected", validatedBy?: string) 
    {
-    const transaction = await this.transactionsRepository.findOne({ where: { id: Equal(id) } });
+    const transaction = await this.transactionsRepository.findOne({ where: { id: Equal(id) }, relations: ["user", "course"] });
     if (!transaction) {
       return "Transaction not found";
     }
