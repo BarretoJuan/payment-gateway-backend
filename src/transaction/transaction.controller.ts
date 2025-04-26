@@ -12,6 +12,8 @@ import { TransactionService } from "./transaction.service";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
 import { UpdateTransactionDto } from "./dto/update-transaction.dto";
 import { AuthGuard } from "../auth/auth.guard";
+import { DeepPartial } from "typeorm";
+import { Transaction } from "./entities/transaction.entity";
 
 @Controller("transaction")
 export class TransactionController {
@@ -31,10 +33,10 @@ export class TransactionController {
 
   @Post("order")
   async createOrder(@Body() body: any): Promise<any> {
-    if (!body.price) {
-      throw new Error("Price is required");
+    if (!body.transactionId) {
+      throw new Error("transactionId is required");
     }
-    return await this.transactionService.createOrder(body.price);
+    return await this.transactionService.createOrder(body.transactionId);
   }
 
   @Patch()

@@ -12,6 +12,9 @@ import { UserService } from "../user/user.service";
 import { CourseService } from "../course/course.service";
 import { UserCourseService } from "../user-course/user-course.service";
 import { validate } from "class-validator";
+import { UserCourse } from "../user-course/entities/user-course.entity";
+import { CreateUserCourseDto } from "../user-course/dto/create-user-course.dto";
+import { TransformPlainToInstance } from "class-transformer";
 
 @Injectable()
 export class TransactionService {
@@ -26,10 +29,10 @@ export class TransactionService {
     private readonly userCourseService: UserCourseService,
   ) {}
 
-  async create(createTransactionDto: DeepPartial<Transaction>) {
-
-    const userId = createTransactionDto.user as string;
-    const courseId = createTransactionDto.course as string;
+  async create(createTransactionDto: CreateTransactionDto) {
+    console.log("wtffff", createTransactionDto)
+    const userId = createTransactionDto?.userId as string;
+    const courseId = createTransactionDto?.courseId as string;
 
     const user = await this.usersService.findOne({
         where: { id: Equal(userId) },
@@ -42,20 +45,28 @@ export class TransactionService {
       return "User or course not found";
     }
 
-    const userCourse = await this.userCourseService.findOne({
+    let userCourse = await this.userCourseService.findOne({
       where: { user: Equal(userId), course: Equal(courseId) },});
 
     if (!userCourse) {
-      return "User course not found";
+      const userCourseDto: CreateUserCourseDto = {
+        userId: userId,
+        courseId: courseId,
+      }
+      await this.userCourseService.create(userCourseDto);
+      userCourse = await this.userCourseService.findOne({
+        where: { user: Equal(userId), course: Equal(courseId) },});
     }
 
     let orderPrice: number;
 
     if (course.paymentScheme === 'single_payment' ) {
+      console.log("single_payment?", course.price)
       orderPrice = course.price ? +course.price : 0;
+      console.log("??????", orderPrice)
     }
 
-    if (course.paymentScheme === 'installments' ) {
+    else if (course.paymentScheme === 'installments' ) {
       if (course.installments) {
 
         const installments = course.installments;
@@ -76,36 +87,49 @@ export class TransactionService {
 
     // 💰 Aplicar balance del usuario
     const userBalance = user.balance ? +user.balance: 0;
+
+    orderPrice = +orderPrice
     let finalAmount = orderPrice;
 
+    console.log("userBalance", typeof orderPrice, typeof userBalance)
+    console.log("1", userBalance)
+    console.log("2", orderPrice)
     if (userBalance >= orderPrice) {
+      console.log("xd??", userBalance, orderPrice)
       user.balance = (userBalance - orderPrice).toString();
       finalAmount = 0;
-      userCourse.balance = orderPrice.toString();
-      userCourse.status = 'acquired';
-      await this.userCourseService.update(userCourse.id, { balance: userCourse.balance, status: userCourse.status });
+      userCourse!.balance = orderPrice.toString();
+      userCourse!.status = 'acquired';
+      await this.userCourseService.update(userCourse!.id, { balance: userCourse!.balance, status: userCourse!.status });
 
     } else {
       finalAmount = orderPrice - userBalance;
+      console.log("xd??", userBalance, orderPrice, finalAmount)
       user.balance = '0';
     }
 
     await this.usersService.update(userId, { balance: user.balance });
     createTransactionDto.amount = finalAmount.toString();
-
-
+    let transactionToCreate
+    let transaction: Transaction;
     if (createTransactionDto.paymentMethod === 'paypal') {
       createTransactionDto.status = 'in_process';
-      const order = await this.transactionsRepository.save(createTransactionDto);
+      transaction = this.transactionsRepository.create({user: user, course: course, amount: createTransactionDto.amount, status: createTransactionDto.status, paymentMethod: createTransactionDto.paymentMethod});
+      transactionToCreate = await this.transactionsRepository.save(transaction);
     }
 
 
     else if (createTransactionDto.paymentMethod === 'zelle') {
       createTransactionDto.status = 'ready_to_be_checked';
-      const transaction = await this.transactionsRepository.save(createTransactionDto);
+      transaction = this.transactionsRepository.create({user: user, course: course, amount: createTransactionDto.amount, status: createTransactionDto.status, paymentMethod: createTransactionDto.paymentMethod});
+      transactionToCreate = await this.transactionsRepository.save(transaction);
     }
 
-    return {orderPrice}
+    else { 
+      return "Payment method not found";
+    }
+
+    return {finalAmount, transactionId: transactionToCreate?.id}
     
   }
 
@@ -208,7 +232,12 @@ export class TransactionService {
     return response.data.access_token;
   }
 
-  async createOrder(price: number) {
+  async createOrder(transactionId: string ) {
+    const transaction = await this.transactionsRepository.findOne({ where: { id: Equal(transactionId) }, relations: ["user", "course"] });
+    if (!transaction) {
+      return "Transaction not found";
+    }
+
     const accessToken = await this.generateAccessToken();
     const payload = {
       intent: 'CAPTURE',
@@ -216,7 +245,7 @@ export class TransactionService {
         {
           amount: {
             currency_code: 'USD',
-            value: price || 100,
+            value: transaction?.amount ,
           },
         },
       ],
@@ -230,8 +259,8 @@ export class TransactionService {
         },
       }),
     );
-
-    return response.data;
+    console.log("response", response.data)
+    return {data: response.data, transactionId};
   }
 
   async captureOrder(orderID: string) {
