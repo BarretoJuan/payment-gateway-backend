@@ -26,7 +26,6 @@ export class AuthController {
 
   @Post("signup")
   async signUp(@Body() user: CreateUserDto) {
-    console.log('user is trying to sign up', user)
     return this.authService.signUp(user);
   }
 
