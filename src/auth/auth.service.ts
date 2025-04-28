@@ -116,7 +116,7 @@ export class AuthService {
 
   /**
    * Sign in a user with email and password
-   * TODO: CHECK THIS BEHAVIOR: WHEN A USER IS SIGNIN IN, IT FIRST SIGNS THE USER CORRECTLY THEN THROWS AN ERROR
+
    */
   async signIn(identification: string, password: string) {
     console.log(identification, password);
@@ -147,6 +147,7 @@ export class AuthService {
         lastName: user.lastName,
         role: user.role,
         email: user.email,
+        id: user.id
       },
       accessToken: data.session.access_token,
       refreshToken: data.session.refresh_token,
