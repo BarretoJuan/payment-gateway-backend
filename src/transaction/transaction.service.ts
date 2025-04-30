@@ -7,7 +7,7 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { AxiosResponse } from 'axios';
 import { Transaction } from "./entities/transaction.entity";
-import { DeepPartial, Equal, Repository } from "typeorm";
+import { DeepPartial, Equal, LessThan, MoreThan, Repository } from "typeorm";
 import { UserService } from "../user/user.service";
 import { CourseService } from "../course/course.service";
 import { UserCourseService } from "../user-course/user-course.service";
@@ -15,6 +15,7 @@ import { validate } from "class-validator";
 import { UserCourse } from "../user-course/entities/user-course.entity";
 import { CreateUserCourseDto } from "../user-course/dto/create-user-course.dto";
 import { TransformPlainToInstance } from "class-transformer";
+import { Cron } from "@nestjs/schedule";
 
 @Injectable()
 export class TransactionService {
@@ -97,6 +98,7 @@ export class TransactionService {
     if (userBalance >= orderPrice) {
       console.log("xd??", userBalance, orderPrice)
       user.balance = (userBalance - orderPrice).toString();
+      createTransactionDto.userBalanceAmount = orderPrice.toString();
       finalAmount = 0;
       userCourse!.balance = orderPrice.toString();
       userCourse!.status = 'acquired';
@@ -104,6 +106,7 @@ export class TransactionService {
 
     } else {
       finalAmount = orderPrice - userBalance;
+      createTransactionDto.userBalanceAmount = userBalance.toString();
       console.log("xd??", userBalance, orderPrice, finalAmount)
       user.balance = '0';
     }
@@ -183,6 +186,13 @@ export class TransactionService {
     else { 
       await this.usersService.update(userCourse.user.id, {balance: userCourse.user.balance + transactionAmount.toString()});
 
+    }
+  }
+  if (transaction.status === 'rejected') {
+    if (transaction.userBalanceAmount) {
+      const userBalance = transaction.user.balance ? +transaction.user.balance : 0;
+      const newUserBalance = userBalance + +transaction.userBalanceAmount;
+      await this.usersService.update(transaction.user.id, {balance: newUserBalance.toString()});
     }
   }
 
@@ -276,5 +286,25 @@ export class TransactionService {
     );
 
     return response.data;
+  }
+
+  @Cron('30 * * * *')
+  async cancelExpiredTransactions() {
+    const transactions = await this.transactionsRepository.find({
+      where: {
+        status: 'in_process',
+        createdAt: LessThan(new Date(Date.now() - 1 * 60 * 60 * 1000)), // 1 hour ago
+      }, relations: ["user"],
+    });
+
+    for (const transaction of transactions) {
+      if (transaction.userBalanceAmount) {
+        const userBalance = transaction.user.balance ? +transaction.user.balance : 0;
+        const newUserBalance = userBalance + +transaction.userBalanceAmount;
+        await this.usersService.update(transaction.user.id, { balance: newUserBalance.toString() });
+      }
+      transaction.deletedAt = new Date();
+      await this.transactionsRepository.save(transaction);
+    }
   }
 }

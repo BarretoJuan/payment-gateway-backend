@@ -24,12 +24,14 @@
     "migrations:revert": "npx typeorm-ts-node-commonjs migration:revert -- -d typeorm/data.source.ts"
   },
   "dependencies": {
+    "@nestjs/axios": "^4.0.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.1",
     "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/schedule": "^6.0.0",
     "@nestjs/typeorm": "^11.0.0",
     "@supabase/supabase-js": "^2.48.1",
     "class-transformer": "^0.5.1",

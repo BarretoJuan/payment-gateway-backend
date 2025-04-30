@@ -27,6 +27,9 @@ export class Transaction {
   @Column("numeric", { name: "amount", nullable: true })
   amount: string | null;
 
+  @Column("numeric", { name: "user_balance_amount", nullable: true })
+  userBalanceAmount: string | null;
+
   @Column("character varying", { name: "description", nullable: true })
   description: string | null;
 

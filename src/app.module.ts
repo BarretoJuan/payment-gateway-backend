@@ -13,9 +13,11 @@ import { SupabaseService } from "./supabase/supabase.service";
 import { CompanyModule } from "./company/company.module";
 import { InstallmentModule } from './installment/installment.module';
 import { HttpModule } from "@nestjs/axios";
+import { ScheduleModule } from "@nestjs/schedule";
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
     HttpModule,
     TypeOrmModule.forRoot({

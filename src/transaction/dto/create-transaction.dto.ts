@@ -8,4 +8,5 @@ export class CreateTransactionDto {
         | "ready_to_be_checked"
         | null;
     paymentMethod?: 'zelle' | 'paypal' | null;
+    userBalanceAmount?: string | null;
 }
