@@ -26,6 +26,7 @@ export class AuthService {
    * Sign up a new user with email and password
    */
   async signUp(user: CreateUserDto) {
+    user = {...user, role: userRoles.USER }; // this should work as long as this endpoint is not used by another role, if this is wanted to be changed, then we should cast the user roles that comes from the frontend which in essence is the same but in uppercase
     const email = user.email;
     const password = user.password;
     const idExists = await this.usersService.findOne({
@@ -34,16 +35,18 @@ export class AuthService {
     const emailExists = await this.usersService.findOne({
       where: { email: Equal(user.email) },
     });
-    if (user.role !== "user") {
+    if (user.role.toLocaleLowerCase() !== "user") {
+      console.log("user role is not user", user.role);
       throw new UnauthorizedException("Not allowed");
     }
     if (idExists || emailExists) {
+      console.log("id or email already exists", idExists, emailExists);
       throw new UnauthorizedException("Invalid credentials");
     }
     const { data, error } = await this.supabaseService
       .getClient()
       .auth.signUp({ email, password });
-
+    console.log("data", data, error);
     if (error) {
       throw new Error(error.message);
     }
@@ -113,7 +116,7 @@ export class AuthService {
 
   /**
    * Sign in a user with email and password
-   * TODO: CHECK THIS BEHAVIOR: WHEN A USER IS SIGNIN IN, IT FIRST SIGNS THE USER CORRECTLY THEN THROWS AN ERROR
+
    */
   async signIn(identification: string, password: string) {
     console.log(identification, password);
@@ -144,6 +147,7 @@ export class AuthService {
         lastName: user.lastName,
         role: user.role,
         email: user.email,
+        id: user.id
       },
       accessToken: data.session.access_token,
       refreshToken: data.session.refresh_token,
