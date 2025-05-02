@@ -51,7 +51,11 @@ export class CourseService {
   }
 
   async findAll() {
-    return await this.coursesRepository.find();
+    return await this.coursesRepository.find({relations: ['installments']});
+  }
+  
+  async findAllInstallments() {
+    return await this.coursesRepository.find({where: {paymentScheme: 'installments'},relations: ['installments']});
   }
 
   async findOne(findOneOptions: FindOneOptions<Courses>) {

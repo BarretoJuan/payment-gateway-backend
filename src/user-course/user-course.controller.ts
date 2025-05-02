@@ -48,6 +48,11 @@ export class UserCourseController {
     return this.userCourseService.findAll();
   }
 
+  @Get("test-cron")
+  test(){
+    return this.userCourseService.expireUserCourses();
+  }
+
   @Get(":id")
   @UseGuards(AuthGuard)
   findOne(@Param("id") id: string) {

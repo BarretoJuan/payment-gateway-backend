@@ -8,6 +8,7 @@ import { CourseService } from "../course/course.service";
 import { UserService } from "../user/user.service";
 const jwt = require("jsonwebtoken");
 import * as dotenv from "dotenv";
+import { Cron } from "@nestjs/schedule";
 dotenv.config();
 
 @Injectable()
@@ -109,4 +110,46 @@ export class UserCourseService {
   remove(id: number) {
     return `This action removes a #${id} userCourse`;
   }
+
+  @Cron("0 0 * * *")
+  async expireUserCourses() {
+    const currentDate = new Date();
+    console.log("Current date: ", currentDate);
+    const courses = await this.coursesService.findAllInstallments(); 
+
+    const userCourses = await this.userCoursesRepository.find({
+      relations: ["user", "course"], where: { course: In(courses.map(course => course.id))}});
+
+    
+    let coursePrices : {courseId: string, coursePrice: number}[] = [];
+    for (const course of courses) {
+      let coursePrice = 0;
+      if (course.installments) {
+      for (const installment of course.installments) {
+
+
+        if (new Date(installment.date) > currentDate) {
+
+
+          continue;
+        }
+        coursePrice += installment.percentage * (course.price ? +course.price : 0) / 100;
+
+
+    }}
+    coursePrices.push({courseId: course.id, coursePrice: coursePrice});
+
+  }
+
+  for (const userCourse of userCourses) {
+    const coursePrice = coursePrices.find((course) => course.courseId === userCourse.course.id);
+    if (coursePrice && +coursePrice.coursePrice > +userCourse.balance) {
+      userCourse.status = "expired";
+      this.userCoursesRepository.update(userCourse.id, userCourse);
+    }
+  }
+
+
+}
+  
 }
