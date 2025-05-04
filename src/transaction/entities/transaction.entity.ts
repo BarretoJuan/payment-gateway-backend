@@ -33,6 +33,9 @@ export class Transaction {
   @Column("character varying", { name: "description", nullable: true })
   description: string | null;
 
+  @Column("text", { name: "reference", nullable: true })
+  reference: string | null;
+
   @Column("enum", {
     name: "payment_method",
     nullable: true,
