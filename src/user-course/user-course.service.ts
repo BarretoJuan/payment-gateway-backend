@@ -47,31 +47,40 @@ export class UserCourseService {
     return { message: "This action adds a new userCourse", token };
   }
 
-  async findUserCourses(userId: number, status: "acquired" | "not_acquired" | "cancelled" | "expired" | "not_bought") {
-  if (status === 'not_bought') {
-    const allCourses = await this.coursesService.findAll();
-    const userCourses = await this.userCoursesRepository.find({
-      relations: ["course"],
-      where: { user: Equal(userId) },
-    });
+  async findUserCourses(
+    userId: number,
+    status:
+      | "acquired"
+      | "not_acquired"
+      | "cancelled"
+      | "expired"
+      | "not_bought",
+  ) {
+    if (status === "not_bought") {
+      const allCourses = await this.coursesService.findAll();
+      const userCourses = await this.userCoursesRepository.find({
+        relations: ["course"],
+        where: { user: Equal(userId) },
+      });
 
-    const userCourseIds = userCourses.map((uc) => uc.course.id);
-    const notBoughtCourses = allCourses.filter(
-      (course) => !userCourseIds.includes(course.id)
-    );
+      const userCourseIds = userCourses.map((uc) => uc.course.id);
+      const notBoughtCourses = allCourses.filter(
+        (course) => !userCourseIds.includes(course.id),
+      );
 
-    return notBoughtCourses;
-  }
-  if (status !== null) {
-    const userCourses = await this.userCoursesRepository.find({
-      relations: ["user", "course"],
-      where: { 
-        user: Equal(userId), status : status 
-      },
-    });
-    return userCourses;
-  }
-  return [];
+      return notBoughtCourses;
+    }
+    if (status !== null) {
+      const userCourses = await this.userCoursesRepository.find({
+        relations: ["user", "course"],
+        where: {
+          user: Equal(userId),
+          status: status,
+        },
+      });
+      return userCourses;
+    }
+    return [];
   }
 
   async decodeGatewayToken(token: string) {
@@ -104,7 +113,6 @@ export class UserCourseService {
 
   update(id: string, updateUserCourseDto: DeepPartial<UserCourse>) {
     return this.userCoursesRepository.update(id, updateUserCourseDto);
-    
   }
 
   remove(id: number) {
@@ -115,41 +123,36 @@ export class UserCourseService {
   async expireUserCourses() {
     const currentDate = new Date();
     console.log("Current date: ", currentDate);
-    const courses = await this.coursesService.findAllInstallments(); 
+    const courses = await this.coursesService.findAllInstallments();
 
     const userCourses = await this.userCoursesRepository.find({
-      relations: ["user", "course"], where: { course: In(courses.map(course => course.id))}});
+      relations: ["user", "course"],
+      where: { course: In(courses.map((course) => course.id)) },
+    });
 
-    
-    let coursePrices : {courseId: string, coursePrice: number}[] = [];
+    let coursePrices: { courseId: string; coursePrice: number }[] = [];
     for (const course of courses) {
       let coursePrice = 0;
       if (course.installments) {
-      for (const installment of course.installments) {
-
-
-        if (new Date(installment.date) > currentDate) {
-
-
-          continue;
+        for (const installment of course.installments) {
+          if (new Date(installment.date) > currentDate) {
+            continue;
+          }
+          coursePrice +=
+            (installment.percentage * (course.price ? +course.price : 0)) / 100;
         }
-        coursePrice += installment.percentage * (course.price ? +course.price : 0) / 100;
+      }
+      coursePrices.push({ courseId: course.id, coursePrice: coursePrice });
+    }
 
-
-    }}
-    coursePrices.push({courseId: course.id, coursePrice: coursePrice});
-
-  }
-
-  for (const userCourse of userCourses) {
-    const coursePrice = coursePrices.find((course) => course.courseId === userCourse.course.id);
-    if (coursePrice && +coursePrice.coursePrice > +userCourse.balance) {
-      userCourse.status = "expired";
-      this.userCoursesRepository.update(userCourse.id, userCourse);
+    for (const userCourse of userCourses) {
+      const coursePrice = coursePrices.find(
+        (course) => course.courseId === userCourse.course.id,
+      );
+      if (coursePrice && +coursePrice.coursePrice > +userCourse.balance) {
+        userCourse.status = "expired";
+        this.userCoursesRepository.update(userCourse.id, userCourse);
+      }
     }
   }
-
-
-}
-  
 }

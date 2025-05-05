@@ -10,7 +10,14 @@ import { CourseModule } from "../course/course.module";
 import { UserCourseModule } from "../user-course/user-course.module";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Transaction]), AuthModule, HttpModule, UserModule, CourseModule, UserCourseModule],
+  imports: [
+    TypeOrmModule.forFeature([Transaction]),
+    AuthModule,
+    HttpModule,
+    UserModule,
+    CourseModule,
+    UserCourseModule,
+  ],
   controllers: [TransactionController],
   providers: [TransactionService],
 })

@@ -54,7 +54,7 @@ export class AuthController {
     //     "You are not authorized to perform this action",
     //   );
     // }
-    console.log("kjdakld")
+    console.log("kjdakld");
     return this.authService.signUpOperator({
       id: id,
       role: userRoles.ACCOUNTING,

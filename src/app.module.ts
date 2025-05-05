@@ -11,7 +11,7 @@ import { UserCourseModule } from "./user-course/user-course.module";
 import { AuthModule } from "./auth/auth.module";
 import { SupabaseService } from "./supabase/supabase.service";
 import { CompanyModule } from "./company/company.module";
-import { InstallmentModule } from './installment/installment.module';
+import { InstallmentModule } from "./installment/installment.module";
 import { HttpModule } from "@nestjs/axios";
 import { ScheduleModule } from "@nestjs/schedule";
 

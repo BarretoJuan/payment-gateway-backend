@@ -35,8 +35,8 @@ export class CourseController {
     return this.courseService.findAll();
   }
 
-  @Put('upload')
-  @UseInterceptors(FileInterceptor('file'))
+  @Put("upload")
+  @UseInterceptors(FileInterceptor("file"))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     console.log(file);
     return await this.courseService.uploadFile(file);

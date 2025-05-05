@@ -34,13 +34,19 @@ export class UserCourseController {
   @Post("get-user-courses-by-status")
   @UseGuards(AuthGuard)
   findUserCoursesByStatus(
-    @Body() body: { userId: number; status: "acquired" | "not_acquired" | "cancelled" | "expired" | "not_bought" },
+    @Body()
+    body: {
+      userId: number;
+      status:
+        | "acquired"
+        | "not_acquired"
+        | "cancelled"
+        | "expired"
+        | "not_bought";
+    },
   ) {
-
     return this.userCourseService.findUserCourses(body.userId, body.status);
   }
-
-
 
   @Get()
   @UseGuards(AuthGuard)
@@ -49,14 +55,14 @@ export class UserCourseController {
   }
 
   @Get("test-cron")
-  test(){
+  test() {
     return this.userCourseService.expireUserCourses();
   }
 
   @Get(":id")
   @UseGuards(AuthGuard)
   findOne(@Param("id") id: string) {
-    return this.userCourseService.findOne({where: { id: Equal(id) }});
+    return this.userCourseService.findOne({ where: { id: Equal(id) } });
   }
 
   @Patch(":id")

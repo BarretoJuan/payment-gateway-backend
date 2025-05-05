@@ -41,15 +41,18 @@ export class TransactionController {
 
   @Patch()
   @UseGuards(AuthGuard)
-  update(
-    @Body() body,
-  ) {
-    return this.transactionService.updateTransactionStatus(body.id, body.status, body?.validatedById, body?.reference, body?.description);
+  update(@Body() body) {
+    return this.transactionService.updateTransactionStatus(
+      body.id,
+      body.status,
+      body?.validatedById,
+      body?.reference,
+      body?.description,
+    );
   }
 
-
-  @Post(':orderID/capture')
-  async captureOrder(@Param('orderID') orderID: string) {
+  @Post(":orderID/capture")
+  async captureOrder(@Param("orderID") orderID: string) {
     return await this.transactionService.captureOrder(orderID);
   }
 
@@ -58,7 +61,6 @@ export class TransactionController {
   findOne(@Param("id") id: string) {
     return this.transactionService.findOne(+id);
   }
-
 
   @UseGuards(AuthGuard)
   @Delete(":id")

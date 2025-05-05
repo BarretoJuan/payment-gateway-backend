@@ -26,7 +26,7 @@ export class AuthService {
    * Sign up a new user with email and password
    */
   async signUp(user: CreateUserDto) {
-    user = {...user, role: userRoles.USER }; // this should work as long as this endpoint is not used by another role, if this is wanted to be changed, then we should cast the user roles that comes from the frontend which in essence is the same but in uppercase
+    user = { ...user, role: userRoles.USER }; // this should work as long as this endpoint is not used by another role, if this is wanted to be changed, then we should cast the user roles that comes from the frontend which in essence is the same but in uppercase
     const email = user.email;
     const password = user.password;
     const idExists = await this.usersService.findOne({
@@ -110,7 +110,7 @@ export class AuthService {
     if (!role) {
       throw new UnauthorizedException("Role is required");
     }
-    console.log("llegue aqui")
+    console.log("llegue aqui");
     return await this.usersService.update(id, { role });
   }
 
@@ -147,7 +147,7 @@ export class AuthService {
         lastName: user.lastName,
         role: user.role,
         email: user.email,
-        id: user.id
+        id: user.id,
       },
       accessToken: data.session.access_token,
       refreshToken: data.session.refresh_token,

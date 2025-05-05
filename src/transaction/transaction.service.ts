@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
 import { UpdateTransactionDto } from "./dto/update-transaction.dto";
-import { ConfigService } from '@nestjs/config';
+import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
-import { AxiosResponse } from 'axios';
+import { HttpService } from "@nestjs/axios";
+import { firstValueFrom } from "rxjs";
+import { AxiosResponse } from "axios";
 import { Transaction } from "./entities/transaction.entity";
 import { DeepPartial, Equal, LessThan, MoreThan, Repository } from "typeorm";
 import { UserService } from "../user/user.service";
@@ -19,7 +19,7 @@ import { Cron } from "@nestjs/schedule";
 
 @Injectable()
 export class TransactionService {
-  private readonly baseUrl = 'https://api-m.sandbox.paypal.com';
+  private readonly baseUrl = "https://api-m.sandbox.paypal.com";
   constructor(
     private readonly configService: ConfigService,
     private readonly httpService: HttpService,
@@ -28,10 +28,10 @@ export class TransactionService {
     private readonly usersService: UserService,
     private readonly coursesService: CourseService,
     private readonly userCourseService: UserCourseService,
-  ) { }
+  ) {}
 
   async create(createTransactionDto: CreateTransactionDto) {
-    console.log("wtffff", createTransactionDto)
+    console.log("wtffff", createTransactionDto);
     const userId = createTransactionDto?.userId as string;
     const courseId = createTransactionDto?.courseId as string;
 
@@ -39,8 +39,10 @@ export class TransactionService {
       where: { id: Equal(userId) },
     });
 
-    const course = await this.coursesService.findOne({ where: { id: Equal(courseId) }, relations: ["installments"] });
-
+    const course = await this.coursesService.findOne({
+      where: { id: Equal(courseId) },
+      relations: ["installments"],
+    });
 
     if (!user || !course) {
       return "User or course not found";
@@ -54,7 +56,7 @@ export class TransactionService {
       const userCourseDto: CreateUserCourseDto = {
         userId: userId,
         courseId: courseId,
-      }
+      };
       await this.userCourseService.create(userCourseDto);
       userCourse = await this.userCourseService.findOne({
         where: { user: Equal(userId), course: Equal(courseId) },
@@ -63,100 +65,117 @@ export class TransactionService {
 
     let orderPrice: number;
 
-    if (course.paymentScheme === 'single_payment') {
-      console.log("single_payment?", course.price)
+    if (course.paymentScheme === "single_payment") {
+      console.log("single_payment?", course.price);
       orderPrice = course.price ? +course.price : 0;
-      console.log("??????", orderPrice)
-    }
-
-    else if (course.paymentScheme === 'installments') {
-      console.log(course)
+      console.log("??????", orderPrice);
+    } else if (course.paymentScheme === "installments") {
+      console.log(course);
       if (course.installments.length > 0) {
-
         const installments = course.installments;
 
         let totalPercentage = 0;
         for (const installment of installments) {
           if (new Date(installment.date) <= new Date()) {
-            console.log("installment.percentage", installment.percentage)
+            console.log("installment.percentage", installment.percentage);
             totalPercentage += +installment.percentage;
-            
-            console.log("total", totalPercentage)
+
+            console.log("total", totalPercentage);
           } else {
-            console.log('fecha no cumplida', installment.date, new Date())
+            console.log("fecha no cumplida", installment.date, new Date());
           }
         }
-        console.log("totalPercentage", totalPercentage)
-        orderPrice = course.price ? (totalPercentage / 100 * +course.price) : 0;
-        console.log("orderPrice", orderPrice)
+        console.log("totalPercentage", totalPercentage);
+        orderPrice = course.price ? (totalPercentage / 100) * +course.price : 0;
+        console.log("orderPrice", orderPrice);
       } else {
-        console.log("installments not found")
+        console.log("installments not found");
         orderPrice = 0;
       }
-    }
-    else {
-      console.log("paymentScheme not found")
+    } else {
+      console.log("paymentScheme not found");
       orderPrice = 0;
     }
 
     // 💰 Aplicar balance del usuario
     const userBalance = user.balance ? +user.balance : 0;
 
-    orderPrice = +orderPrice
+    orderPrice = +orderPrice;
     let finalAmount = orderPrice;
 
-    console.log("userBalance", typeof orderPrice, typeof userBalance)
-    console.log("1", userBalance)
-    console.log("2", orderPrice)
+    console.log("userBalance", typeof orderPrice, typeof userBalance);
+    console.log("1", userBalance);
+    console.log("2", orderPrice);
     if (userBalance >= orderPrice) {
-      console.log("xd??", userBalance, orderPrice)
+      console.log("xd??", userBalance, orderPrice);
       user.balance = (userBalance - orderPrice).toString();
       createTransactionDto.userBalanceAmount = orderPrice.toString();
       finalAmount = 0;
       userCourse!.balance = orderPrice.toString();
-      userCourse!.status = 'acquired';
-      await this.userCourseService.update(userCourse!.id, { balance: userCourse!.balance, status: userCourse!.status });
-
+      userCourse!.status = "acquired";
+      await this.userCourseService.update(userCourse!.id, {
+        balance: userCourse!.balance,
+        status: userCourse!.status,
+      });
     } else {
       finalAmount = orderPrice - userBalance;
       createTransactionDto.userBalanceAmount = userBalance.toString();
-      console.log("xd??", userBalance, orderPrice, finalAmount)
-      user.balance = '0';
+      console.log("xd??", userBalance, orderPrice, finalAmount);
+      user.balance = "0";
     }
 
     await this.usersService.update(userId, { balance: user.balance });
     createTransactionDto.amount = finalAmount.toString();
-    let transactionToCreate
+    let transactionToCreate;
     let transaction: Transaction;
-    if (createTransactionDto.paymentMethod === 'paypal') {
-      createTransactionDto.status = 'in_process';
-      transaction = this.transactionsRepository.create({ user: user, course: course, amount: createTransactionDto.amount, status: createTransactionDto.status, paymentMethod: createTransactionDto.paymentMethod });
+    if (createTransactionDto.paymentMethod === "paypal") {
+      createTransactionDto.status = "in_process";
+      transaction = this.transactionsRepository.create({
+        user: user,
+        course: course,
+        amount: createTransactionDto.amount,
+        status: createTransactionDto.status,
+        paymentMethod: createTransactionDto.paymentMethod,
+      });
       transactionToCreate = await this.transactionsRepository.save(transaction);
-    }
-
-
-    else if (createTransactionDto.paymentMethod === 'zelle') {
-      createTransactionDto.status = 'ready_to_be_checked';
-      transaction = this.transactionsRepository.create({ user: user, course: course, amount: createTransactionDto.amount, status: createTransactionDto.status, paymentMethod: createTransactionDto.paymentMethod });
+    } else if (createTransactionDto.paymentMethod === "zelle") {
+      createTransactionDto.status = "ready_to_be_checked";
+      transaction = this.transactionsRepository.create({
+        user: user,
+        course: course,
+        amount: createTransactionDto.amount,
+        status: createTransactionDto.status,
+        paymentMethod: createTransactionDto.paymentMethod,
+      });
       transactionToCreate = await this.transactionsRepository.save(transaction);
-    }
-
-    else {
+    } else {
       return "Payment method not found";
     }
 
-    return { finalAmount, transactionId: transactionToCreate?.id }
-
+    return { transaction, finalAmount, transactionId: transactionToCreate?.id };
   }
 
-  async updateTransactionStatus(id: string, status: "completed" | "rejected", validatedBy?: string, reference?: string, description?: string) {
-    const transaction = await this.transactionsRepository.findOne({ where: { id: Equal(id) }, relations: ["user", "course"] });
+  async updateTransactionStatus(
+    id: string,
+    status: "completed" | "rejected",
+    validatedBy?: string,
+    reference?: string,
+    description?: string,
+  ) {
+    const transaction = await this.transactionsRepository.findOne({
+      where: { id: Equal(id) },
+      relations: ["user", "course"],
+    });
     if (!transaction) {
       return "Transaction not found";
     }
 
     const userCourse = await this.userCourseService.findOne({
-      where: { user: Equal(transaction.user.id), course: Equal(transaction.course.id) }, relations: ["user", "course"]
+      where: {
+        user: Equal(transaction.user.id),
+        course: Equal(transaction.course.id),
+      },
+      relations: ["user", "course"],
     });
 
     if (!userCourse) {
@@ -165,7 +184,9 @@ export class TransactionService {
 
     let userOperator;
     if (validatedBy) {
-      userOperator = await this.usersService.findOne({ where: { id: Equal(validatedBy) } });
+      userOperator = await this.usersService.findOne({
+        where: { id: Equal(validatedBy) },
+      });
       if (!userOperator) {
         return "User not found";
       }
@@ -183,45 +204,53 @@ export class TransactionService {
     transaction.updatedAt = new Date(); // Set to null if not already set
     await this.transactionsRepository.save(transaction);
     const transactionAmount = transaction.amount ? +transaction.amount : 0;
-    const coursePrice = transaction.course.price ? +transaction.course.price : 0;
+    const coursePrice = transaction.course.price
+      ? +transaction.course.price
+      : 0;
     let userCourseBalance = userCourse ? +userCourse.balance : 0;
-    if (transaction.status === 'completed') {
+    if (transaction.status === "completed") {
       if (userCourseBalance < coursePrice) {
         const remaining = coursePrice - userCourseBalance;
 
         if (transactionAmount > remaining) {
           userCourseBalance += remaining;
-          await this.userCourseService.update(userCourse.id, { balance: userCourseBalance.toString() });
+          await this.userCourseService.update(userCourse.id, {
+            balance: userCourseBalance.toString(),
+          });
           const remainingTransactionAmount = transactionAmount - remaining;
-          const UserBalance = userCourse.user.balance ? +userCourse.user.balance : 0;
+          const UserBalance = userCourse.user.balance
+            ? +userCourse.user.balance
+            : 0;
           const newUserBalance = UserBalance + remainingTransactionAmount;
-          await this.usersService.update(userCourse.user.id, { balance: newUserBalance.toString() });
-
-        }
-        else {
+          await this.usersService.update(userCourse.user.id, {
+            balance: newUserBalance.toString(),
+          });
+        } else {
           userCourseBalance += transactionAmount;
-          await this.userCourseService.update(userCourse.id, { balance: userCourseBalance.toString() });
+          await this.userCourseService.update(userCourse.id, {
+            balance: userCourseBalance.toString(),
+          });
         }
+      } else {
+        await this.usersService.update(userCourse.user.id, {
+          balance: userCourse.user.balance + transactionAmount.toString(),
+        });
       }
-      else {
-        await this.usersService.update(userCourse.user.id, { balance: userCourse.user.balance + transactionAmount.toString() });
-
     }
-  }
-  if (transaction.status === 'rejected') {
-    if (transaction.userBalanceAmount) {
-      const userBalance = transaction.user.balance ? +transaction.user.balance : 0;
-      const newUserBalance = userBalance + +transaction.userBalanceAmount;
-      await this.usersService.update(transaction.user.id, {balance: newUserBalance.toString()});
+    if (transaction.status === "rejected") {
+      if (transaction.userBalanceAmount) {
+        const userBalance = transaction.user.balance
+          ? +transaction.user.balance
+          : 0;
+        const newUserBalance = userBalance + +transaction.userBalanceAmount;
+        await this.usersService.update(transaction.user.id, {
+          balance: newUserBalance.toString(),
+        });
+      }
     }
-  }
 
     return transaction;
-
-
-
   }
-
 
   async findAll() {
     return await this.transactionsRepository.find({
@@ -242,18 +271,18 @@ export class TransactionService {
   }
 
   private async generateAccessToken(): Promise<string> {
-    const clientId = this.configService.get<string>('PAYPAL_CLIENT_ID');
-    const clientSecret = this.configService.get<string>('PAYPAL_CLIENT_SECRET');
-    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    const clientId = this.configService.get<string>("PAYPAL_CLIENT_ID");
+    const clientSecret = this.configService.get<string>("PAYPAL_CLIENT_SECRET");
+    const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 
     const response = await firstValueFrom(
       this.httpService.post(
         `${this.baseUrl}/v1/oauth2/token`,
-        'grant_type=client_credentials',
+        "grant_type=client_credentials",
         {
           headers: {
             Authorization: `Basic ${auth}`,
-            'Content-Type': 'application/x-www-form-urlencoded',
+            "Content-Type": "application/x-www-form-urlencoded",
           },
         },
       ),
@@ -263,18 +292,21 @@ export class TransactionService {
   }
 
   async createOrder(transactionId: string) {
-    const transaction = await this.transactionsRepository.findOne({ where: { id: Equal(transactionId) }, relations: ["user", "course"] });
+    const transaction = await this.transactionsRepository.findOne({
+      where: { id: Equal(transactionId) },
+      relations: ["user", "course"],
+    });
     if (!transaction) {
       return "Transaction not found";
     }
 
     const accessToken = await this.generateAccessToken();
     const payload = {
-      intent: 'CAPTURE',
+      intent: "CAPTURE",
       purchase_units: [
         {
           amount: {
-            currency_code: 'USD',
+            currency_code: "USD",
             value: transaction?.amount,
           },
         },
@@ -284,12 +316,12 @@ export class TransactionService {
     const response = await firstValueFrom(
       this.httpService.post(`${this.baseUrl}/v2/checkout/orders`, payload, {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
       }),
     );
-    console.log("response", response.data)
+    console.log("response", response.data);
     return { data: response.data, transactionId };
   }
 
@@ -297,31 +329,40 @@ export class TransactionService {
     const accessToken = await this.generateAccessToken();
 
     const response = await firstValueFrom(
-      this.httpService.post(`${this.baseUrl}/v2/checkout/orders/${orderID}/capture`, {}, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
+      this.httpService.post(
+        `${this.baseUrl}/v2/checkout/orders/${orderID}/capture`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
         },
-      }),
+      ),
     );
 
     return response.data;
   }
 
-  @Cron('30 * * * *')
+  @Cron("30 * * * *")
   async cancelExpiredTransactions() {
     const transactions = await this.transactionsRepository.find({
       where: {
-        status: 'in_process',
+        status: "in_process",
         createdAt: LessThan(new Date(Date.now() - 1 * 60 * 60 * 1000)), // 1 hour ago
-      }, relations: ["user"],
+      },
+      relations: ["user"],
     });
 
     for (const transaction of transactions) {
       if (transaction.userBalanceAmount) {
-        const userBalance = transaction.user.balance ? +transaction.user.balance : 0;
+        const userBalance = transaction.user.balance
+          ? +transaction.user.balance
+          : 0;
         const newUserBalance = userBalance + +transaction.userBalanceAmount;
-        await this.usersService.update(transaction.user.id, { balance: newUserBalance.toString() });
+        await this.usersService.update(transaction.user.id, {
+          balance: newUserBalance.toString(),
+        });
       }
       transaction.deletedAt = new Date();
       await this.transactionsRepository.save(transaction);

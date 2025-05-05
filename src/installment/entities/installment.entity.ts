@@ -1,5 +1,5 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
-import { Courses } from "../../course/entities/course.entity"; 
+import { Courses } from "../../course/entities/course.entity";
 
 @Index("INSTALLMENT_pkey", ["id"], { unique: true })
 @Entity("INSTALLMENT", { schema: "public" })
@@ -29,7 +29,7 @@ export class Installment {
   @Column("integer", { name: "percentage" })
   percentage: number;
 
-  @Column('varchar',{ name: 'course_id'} )
+  @Column("varchar", { name: "course_id" })
   courseId: string;
 
   @ManyToOne(() => Courses, (courses) => courses.installments, {

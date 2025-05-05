@@ -17,52 +17,57 @@ export class CourseService {
   ) {}
 
   async create(createCourseDto: DeepPartial<Courses>) {
-
     const course = await this.coursesRepository.save(createCourseDto);
 
-    if (createCourseDto.paymentScheme === 'installments' ) {
-      if ( !createCourseDto.installments) { throw new Error('Course with installment payment scheme must have installments'); }
-      const installments = createCourseDto.installments
+    if (createCourseDto.paymentScheme === "installments") {
+      if (!createCourseDto.installments) {
+        throw new Error(
+          "Course with installment payment scheme must have installments",
+        );
+      }
+      const installments = createCourseDto.installments;
       let totalPercentage = 0;
       let previousDate;
       for (const installment of installments) {
-        if (!installment.percentage || !installment.date ) {
-          throw new Error('Installment percentage is undefined');
+        if (!installment.percentage || !installment.date) {
+          throw new Error("Installment percentage is undefined");
         }
         totalPercentage = totalPercentage + installment.percentage;
-        if (previousDate && (installment.date <= previousDate)) {
-          throw new Error("Installments should be inserted in chronological order");
+        if (previousDate && installment.date <= previousDate) {
+          throw new Error(
+            "Installments should be inserted in chronological order",
+          );
         }
-        previousDate = installment.date
+        previousDate = installment.date;
       }
 
       if (totalPercentage != 100) {
-        throw new Error('Installments percentages should sum to 100%')
+        throw new Error("Installments percentages should sum to 100%");
       }
 
-      for ( const installment of installments) {
+      for (const installment of installments) {
         installment.courseId = course.id;
         await this.installmentService.create(installment);
       }
-
     }
-    
+
     return course;
   }
 
   async findAll() {
-    return await this.coursesRepository.find({relations: ['installments']});
+    return await this.coursesRepository.find({ relations: ["installments"] });
   }
-  
+
   async findAllInstallments() {
-    return await this.coursesRepository.find({where: {paymentScheme: 'installments'},relations: ['installments']});
+    return await this.coursesRepository.find({
+      where: { paymentScheme: "installments" },
+      relations: ["installments"],
+    });
   }
 
   async findOne(findOneOptions: FindOneOptions<Courses>) {
     return await this.coursesRepository.findOne(findOneOptions);
   }
-
-  
 
   async update(id: string, updateCourseDto: DeepPartial<Courses>) {
     return await this.coursesRepository.update(id, updateCourseDto);
@@ -76,21 +81,23 @@ export class CourseService {
     this.supabaseService;
     const { data, error } = await this.supabaseService
       .getClient()
-      .storage.from("courses-images").upload(file.originalname, file.buffer, {
+      .storage.from("courses-images")
+      .upload(file.originalname, file.buffer, {
         contentType: file.mimetype,
         upsert: true,
       });
-      
-      if (error) {
-        throw new Error(`Failed to upload file: ${error.message}`);
-      }
 
-      const imagePath = data;
+    if (error) {
+      throw new Error(`Failed to upload file: ${error.message}`);
+    }
 
-      const url = this.supabaseService
-        .getClient()
-        .storage.from("courses-images").getPublicUrl(imagePath.path);
+    const imagePath = data;
 
-      return {url: url.data.publicUrl};
+    const url = this.supabaseService
+      .getClient()
+      .storage.from("courses-images")
+      .getPublicUrl(imagePath.path);
+
+    return { url: url.data.publicUrl };
   }
 }
