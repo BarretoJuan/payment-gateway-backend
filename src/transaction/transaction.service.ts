@@ -107,6 +107,7 @@ export class TransactionService {
     console.log("1", userBalance);
     console.log("2", orderPrice);
     if (userBalance >= orderPrice) {
+      console.log("probando______")
       console.log("xd??", userBalance, orderPrice);
       user.balance = (userBalance - orderPrice).toString();
       createTransactionDto.userBalanceAmount = orderPrice.toString();
@@ -118,6 +119,7 @@ export class TransactionService {
         status: userCourse!.status,
       });
     } else {
+      console.log("probando probadnoooo")
       finalAmount = orderPrice - userBalance;
       createTransactionDto.userBalanceAmount = userBalance.toString();
       console.log("xd??", userBalance, orderPrice, finalAmount);
@@ -140,13 +142,13 @@ export class TransactionService {
       transactionToCreate = await this.transactionsRepository.save(transaction);
     } else if (createTransactionDto.paymentMethod === "zelle") {
       createTransactionDto.status = "ready_to_be_checked";
+      console.log("createTransactionDto", createTransactionDto);
+      createTransactionDto.user = user;
+      createTransactionDto.course = course;
       transaction = this.transactionsRepository.create({
-        user: user,
-        course: course,
-        amount: createTransactionDto.amount,
-        status: createTransactionDto.status,
-        paymentMethod: createTransactionDto.paymentMethod,
+...createTransactionDto
       });
+
       transactionToCreate = await this.transactionsRepository.save(transaction);
     } else {
       return "Payment method not found";
@@ -199,7 +201,9 @@ export class TransactionService {
     if (description) {
       transaction.description = description;
     }
-
+    if (status === transaction.status) {
+      return "Transaction already has this status";
+    }
     transaction.status = status;
     transaction.updatedAt = new Date(); // Set to null if not already set
     await this.transactionsRepository.save(transaction);
@@ -243,6 +247,10 @@ export class TransactionService {
           ? +transaction.user.balance
           : 0;
         const newUserBalance = userBalance + +transaction.userBalanceAmount;
+        await this.userCourseService.update(userCourse.id, {
+          balance: (+userCourse.balance - (transaction.amount ? +transaction.amount : 0)).toString(),
+          status: "not_acquired",
+        });
         await this.usersService.update(transaction.user.id, {
           balance: newUserBalance.toString(),
         });
