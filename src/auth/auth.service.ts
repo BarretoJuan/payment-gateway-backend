@@ -41,7 +41,7 @@ export class AuthService {
     }
     if (idExists || emailExists) {
       console.log("id or email already exists", idExists, emailExists);
-      throw new UnauthorizedException("Invalid credentials");
+      throw new UnauthorizedException("La cédula o el correo ya existe");
     }
     const { data, error } = await this.supabaseService
       .getClient()

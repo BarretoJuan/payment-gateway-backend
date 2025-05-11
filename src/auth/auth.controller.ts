@@ -26,6 +26,7 @@ export class AuthController {
 
   @Post("signup")
   async signUp(@Body() user: CreateUserDto) {
+    
     return this.authService.signUp(user);
   }
 
@@ -66,6 +67,7 @@ export class AuthController {
     @Body("identification") identification: string,
     @Body("password") password: string,
   ) {
+    console.log("identification", identification, password);
     return this.authService.signIn(identification, password);
   }
 
@@ -75,8 +77,9 @@ export class AuthController {
   }
 
   @Post("logout")
-  @UseGuards(AuthGuard) // Protect this route with the AuthGuard
+  @UseGuards(AuthGuard)
   async logout(@Req() request: Request) {
+    console.log("trying to logout");
     const accessToken: string = request.headers["authorization"]?.split(" ")[1];
     return this.authService.logout(accessToken);
   }
