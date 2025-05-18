@@ -37,7 +37,7 @@ export class UserCourse {
   @Column("character varying", { name: "token", nullable: true })
   token: string | null;
 
-  @Column("bigint", { name: "balance", default: () => "'0'" })
+  @Column("numeric", { name: "balance", default: () => "'0'" })
   balance: string;
 
   @ManyToOne(() => Courses, (courses) => courses.userCourses, {
