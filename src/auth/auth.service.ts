@@ -3,21 +3,22 @@
 /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // src/auth/auth.service.ts
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { forwardRef, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Equal } from "typeorm";
 import { SupabaseService } from "../supabase/supabase.service";
 import { User } from "../user/entities/user.entity";
 import { CreateUserDto, SaveUserDto } from "../user/dto/create-user.dto";
 import { UserService } from "../user/user.service";
 import { userRoles } from "../common/constants";
-import { CompanyService } from "src/company/company.service";
-import { CreateCompanyDto } from "src/company/dto/create-company.dto";
-import { UpdateUserDto } from "src/user/dto/update-user.dto";
+import { CompanyService } from "../company/company.service";
+import { CreateCompanyDto } from "../company/dto/create-company.dto";
+import { UpdateUserDto } from "../user/dto/update-user.dto";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly supabaseService: SupabaseService,
+    @Inject(forwardRef(() => UserService))
     private readonly usersService: UserService,
     private readonly companyService: CompanyService,
   ) {}
@@ -272,4 +273,37 @@ export class AuthService {
 
     return company;
   }
+
+async updatePassword(user: User, newPassword: string) {
+  const email = user.email;
+
+  // First, get the user ID from the email
+   // List all users and filter manually
+  const { data: userList, error: userError } = await this.supabaseService
+    .getClient()
+    .auth.admin.listUsers();
+
+  if (userError) {
+    throw new Error(userError.message);
+  }
+
+  const userData = userList.users.find(u => u.email === email);
+  
+  if (!userData) {
+    throw new Error('User not found');
+  }
+
+  const userId = userData.id;
+
+  //update the password in the database
+  const { data, error } = await this.supabaseService
+    .getClient()
+    .auth.admin.updateUserById(userId, { password: newPassword });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return { message: "Password updated successfully", data };
+}
 }
