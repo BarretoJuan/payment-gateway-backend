@@ -266,6 +266,14 @@ export class TransactionService {
     });
   }
 
+  async findOperator() {
+       return await this.transactionsRepository.find({
+      relations: ["course", "user", "validatedBy"],
+      where: {
+        status: "ready_to_be_checked",
+  }})
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} transaction`;
   }

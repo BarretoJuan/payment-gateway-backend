@@ -31,6 +31,12 @@ export class TransactionController {
     return this.transactionService.findAll();
   }
 
+  
+ @UseGuards(AuthGuard)
+  @Get("operator")
+  findOperatorTransactions() {
+    return this.transactionService.findOperator();
+  }
   @Post("order")
   async createOrder(@Body() body: any): Promise<any> {
     if (!body.transactionId) {
