@@ -24,6 +24,11 @@ export class UserService {
     return await this.usersRepository.find();
   }
      
+  async findByRole(role: "admin" | "accounting" | "user") {
+    return await this.usersRepository.find({
+      where: { role: Equal(role) },
+    });
+  }
 
   async findOneByIdentification(identification: string) {
     return await this.usersRepository.findOne({

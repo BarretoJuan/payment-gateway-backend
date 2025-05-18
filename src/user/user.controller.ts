@@ -33,6 +33,11 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @Get("role/:role")
+  @UseGuards(AuthGuard)
+  findByRole(@Param("role") role: "admin" | "accounting" | "user") {
+    return this.userService.findByRole(role);
+  }
     @Get("balance/:id")
   @UseGuards(AuthGuard)
   findUserBalance(@Param("id") id: string) {
