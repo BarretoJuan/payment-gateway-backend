@@ -149,6 +149,7 @@ export class AuthService {
         role: user.role,
         email: user.email,
         id: user.id,
+        balance : user.balance,
       },
       accessToken: data.session.access_token,
       refreshToken: data.session.refresh_token,

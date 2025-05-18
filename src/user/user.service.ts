@@ -23,6 +23,7 @@ export class UserService {
   async findAll() {
     return await this.usersRepository.find();
   }
+     
 
   async findOneByIdentification(identification: string) {
     return await this.usersRepository.findOne({
@@ -32,6 +33,10 @@ export class UserService {
 
   async findOne(findOneOptions: FindOneOptions<User>) {
     return await this.usersRepository.findOne(findOneOptions);
+  }
+
+    async findUserBalance(id: string) {
+    return await this.usersRepository.findOne({select: { balance: true, id: true, email: true }, where: { id: Equal(id) }});
   }
 
   async update(id: string, updateUserDto: DeepPartial<User>) {

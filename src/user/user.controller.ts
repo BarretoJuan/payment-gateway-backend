@@ -33,6 +33,12 @@ export class UserController {
     return this.userService.findAll();
   }
 
+    @Get("balance/:id")
+  @UseGuards(AuthGuard)
+  findUserBalance(@Param("id") id: string) {
+    return this.userService.findUserBalance(id);
+  }
+
   @Get(":id")
   @UseGuards(AuthGuard)
   findOne(@Body() options: FindOneOptions) {
