@@ -74,7 +74,7 @@ export class CourseService {
   }
 
   async remove(id: string) {
-    return await this.coursesRepository.update(id, { deletedAt: Date.now() });
+    return await this.coursesRepository.update(id, { deletedAt: new Date() });
   }
 
   async uploadFile(file: Express.Multer.File) {
