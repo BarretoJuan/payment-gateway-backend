@@ -62,7 +62,7 @@ export class UserController {
           const user = await this.userService.findOne({
             where: { identificationNumber: updateUserDto.identificationNumber },
           });
-          if (user) {
+          if (user && user.id !== id) {
             throw new UnauthorizedException("Identification number already exists");
           }
 
