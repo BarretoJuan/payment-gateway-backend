@@ -33,9 +33,7 @@
 
 [ ] implementar el histórico de pagos en la vista del usuario
 
-[ ] capacidad de filtrar los cursos de los usuarios. Actualmente, en la seccion de "Mis Cursos" se muestran todos los cursos disponibles, en su lugar, deben mostrarse unicamente aquellos que ya haya adquirido el usuario. A su vez, se deben poder comprar nuevos cursos, ver los cursos cancelados, y los cursos expirados
-
-[ ] Mostrar el balance del usuario en la vista de estudiante
+[x] Mostrar el balance del usuario en la vista de estudiante
 
 [ ] onboarding 
 
