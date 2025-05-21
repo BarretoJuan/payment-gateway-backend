@@ -50,7 +50,7 @@ export class TransactionController {
   update(@Body() body) {
     return this.transactionService.updateTransactionStatus(
       body.id,
-      body.status,
+      body?.status,
       body?.validatedById,
       body?.reference,
       body?.description,
