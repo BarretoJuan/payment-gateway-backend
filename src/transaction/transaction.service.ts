@@ -5,16 +5,15 @@ import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { HttpService } from "@nestjs/axios";
 import { firstValueFrom } from "rxjs";
-import { AxiosResponse } from "axios";
+
 import { Transaction } from "./entities/transaction.entity";
-import { DeepPartial, Equal, LessThan, MoreThan, Repository } from "typeorm";
+import {  Equal, LessThan,  Repository } from "typeorm";
 import { UserService } from "../user/user.service";
 import { CourseService } from "../course/course.service";
 import { UserCourseService } from "../user-course/user-course.service";
-import { validate } from "class-validator";
-import { UserCourse } from "../user-course/entities/user-course.entity";
+
 import { CreateUserCourseDto } from "../user-course/dto/create-user-course.dto";
-import { TransformPlainToInstance } from "class-transformer";
+
 import { Cron } from "@nestjs/schedule";
 
 @Injectable()
@@ -31,7 +30,7 @@ export class TransactionService {
   ) {}
 
   async create(createTransactionDto: CreateTransactionDto) {
-    console.log("wtffff", createTransactionDto);
+
     const userId = createTransactionDto?.userId as string;
     const courseId = createTransactionDto?.courseId as string;
 
@@ -45,7 +44,7 @@ export class TransactionService {
     });
 
     if (!user || !course) {
-      return "User or course not found";
+      return { error: true, message: "User or course not found" };
     }
 
     let userCourse = await this.userCourseService.findOne({
@@ -66,34 +65,33 @@ export class TransactionService {
     let orderPrice: number;
 
     if (course.paymentScheme === "single_payment") {
-      console.log("single_payment?", course.price);
+
       orderPrice = course.price ? +course.price : 0;
-      console.log("??????", orderPrice);
+
     } else if (course.paymentScheme === "installments") {
-      console.log(course);
+
       if (course.installments.length > 0) {
         const installments = course.installments;
 
         let totalPercentage = 0;
         for (const installment of installments) {
           if (new Date(installment.date) <= new Date()) {
-            console.log("installment.percentage", installment.percentage);
+
             totalPercentage += +installment.percentage;
 
-            console.log("total", totalPercentage);
           } else {
             console.log("fecha no cumplida", installment.date, new Date());
           }
         }
-        console.log("totalPercentage", totalPercentage);
+
         orderPrice = course.price ? (totalPercentage / 100) * +course.price : 0;
-        console.log("orderPrice", orderPrice);
+
       } else {
-        console.log("installments not found");
+
         orderPrice = 0;
       }
     } else {
-      console.log("paymentScheme not found");
+
       orderPrice = 0;
     }
 
@@ -103,12 +101,8 @@ export class TransactionService {
     orderPrice = +orderPrice;
     let finalAmount = orderPrice;
 
-    console.log("userBalance", typeof orderPrice, typeof userBalance);
-    console.log("1", userBalance);
-    console.log("2", orderPrice);
     if (userBalance >= orderPrice) {
-      console.log("probando______")
-      console.log("xd??", userBalance, orderPrice);
+
       user.balance = (userBalance - orderPrice).toString();
       createTransactionDto.userBalanceAmount = orderPrice.toString();
       finalAmount = 0;
@@ -119,16 +113,15 @@ export class TransactionService {
         status: userCourse!.status,
       });
     } else {
-      console.log("probando probadnoooo")
       finalAmount = orderPrice - userBalance;
       createTransactionDto.userBalanceAmount = userBalance.toString();
-      console.log("xd??", userBalance, orderPrice, finalAmount);
+      console.log("Balance - Precio - Precio a pagar", userBalance, orderPrice, finalAmount);
       user.balance = "0";
     }
 
     await this.usersService.update(userId, { balance: user.balance });
     createTransactionDto.amount = finalAmount.toString();
-    let transactionToCreate;
+    let transactionToCreate: Transaction | undefined;
     let transaction: Transaction;
     if (createTransactionDto.paymentMethod === "paypal") {
       createTransactionDto.status = "in_process";
@@ -142,7 +135,7 @@ export class TransactionService {
       transactionToCreate = await this.transactionsRepository.save(transaction);
     } else if (createTransactionDto.paymentMethod === "zelle") {
       createTransactionDto.status = "ready_to_be_checked";
-      console.log("createTransactionDto", createTransactionDto);
+
       createTransactionDto.user = user;
       createTransactionDto.course = course;
       transaction = this.transactionsRepository.create({
@@ -151,7 +144,7 @@ export class TransactionService {
 
       transactionToCreate = await this.transactionsRepository.save(transaction);
     } else {
-      return "Payment method not found";
+      return { error: true, message: "Payment method not found" };
     }
 
     if (finalAmount === 0) { 
