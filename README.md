@@ -1,44 +1,44 @@
 ## Roadmap
-[ X ] Agregar un redireccionamiento a login o la pantalla de inicio correspondiente al entrar a localhost:4200
+[x] Agregar un redireccionamiento a login o la pantalla de inicio correspondiente al entrar a localhost:4200
 
-[ X ] Agregar loaders o spinners a los botones (registro, inicio de sesión, creación de cursos, creación de transacciones...)
+[x] Agregar loaders o spinners a los botones (registro, inicio de sesión, creación de cursos, creación de transacciones...)
 
-[ X ] Implementar el logout -> Aplica a Admin y User, falta implementar la vista completa de Operador y luego implementar el logout
+[x] Implementar el logout -> Aplica a Admin y User, falta implementar la vista completa de Operador y luego implementar el logout
 
-[  ] Recibir datos reales de la base de datos para el admin dashboard
+[ ] Recibir datos reales de la base de datos para el admin dashboard
 
-[  ] Descarga de reportes en pdf
+[ ] Descarga de reportes en pdf
 
-[  ] Implementar los ajustes de cuenta en administrador, estudiante y operador
+[ ] Implementar los ajustes de cuenta en administrador, estudiante y operador
 
-[  ] implementar el logo de la empresa en la interfaz
+[ ] implementar el logo de la empresa en la interfaz
 
-[  ] Permitir que se pueda inhabilitar alguno de los dos medios de pago, y que se pueda inhabilitar alguno de los dos medios de pago.
+[ ] Permitir que se pueda inhabilitar alguno de los dos medios de pago, y que se pueda inhabilitar alguno de los dos medios de pago.
 
-[ X ] revisar el hitbox de algunos botones. (Ejemplo: el botón de ver cursos del admin)
+[x] revisar el hitbox de algunos botones. (Ejemplo: el botón de ver cursos del admin)
 
-[  ] Implementar la actualización y eliminación de cursos desde admin/courses
+[ ] Implementar la actualización y eliminación de cursos desde admin/courses
 
-[  ] Implementar el image placeholder para admin/courses
+[ ] Implementar el image placeholder para admin/courses
 
-[  ] Implementar o eliminar la barra de búsqueda en /admin/transactions
+[ ] Implementar o eliminar la barra de búsqueda en /admin/transactions
 
-[  ] implementar el botón de Transacciones/ Reportes financieros en el menú del administrador
+[ ] implementar el botón de Transacciones/ Reportes financieros en el menú del administrador
 
-[  ] Implementar el registro, eliminación y lista de empleados en el panel del administrador.
+[ ] Implementar el registro, eliminación y lista de empleados en el panel del administrador.
 
-[  ] implementar el /operator/dashboard
+[ ] implementar el /operator/dashboard
 
-[  ] implementar el perfil y el inicio de sesión en la vista del usuario
+[ ] implementar el perfil y el inicio de sesión en la vista del usuario
 
-[  ] implementar el histórico de pagos en la vista del usuario
+[ ] implementar el histórico de pagos en la vista del usuario
 
-[  ] capacidad de filtrar los cursos de los usuarios. Actualmente, en la seccion de "Mis Cursos" se muestran todos los cursos disponibles, en su lugar, deben mostrarse unicamente aquellos que ya haya adquirido el usuario. A su vez, se deben poder comprar nuevos cursos, ver los cursos cancelados, y los cursos expirados
+[ ] capacidad de filtrar los cursos de los usuarios. Actualmente, en la seccion de "Mis Cursos" se muestran todos los cursos disponibles, en su lugar, deben mostrarse unicamente aquellos que ya haya adquirido el usuario. A su vez, se deben poder comprar nuevos cursos, ver los cursos cancelados, y los cursos expirados
 
-[  ] Mostrar el balance del usuario en la vista de estudiante
+[ ] Mostrar el balance del usuario en la vista de estudiante
 
-[  ] onboarding 
+[ ] onboarding 
 
-[  ] setting de admin para configurar los medios de pagos
+[ ] setting de admin para configurar los medios de pagos
 
-[  ] reload en una transaccion satisfactoria en la vista de usuario, en caso de que el total amount sea cero.
+[ ] reload en una transaccion satisfactoria en la vista de usuario, en caso de que el total amount sea cero.
