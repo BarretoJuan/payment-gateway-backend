@@ -154,6 +154,27 @@ export class TransactionService {
       return "Payment method not found";
     }
 
+    if (finalAmount === 0) { 
+      const userCourse = await this.userCourseService.findOne({
+        where: { user: Equal(userId), course: Equal(courseId) },
+      });
+      if (userCourse) {
+        userCourse.status = "acquired";
+        await this.userCourseService.update(userCourse.id, {
+          status: userCourse.status,
+        });
+      }
+
+      const transactionToUpdate = await this.transactionsRepository.findOne({
+        where: { id: Equal(transactionToCreate.id) },
+        relations: ["user", "course"],
+      });
+      if (transactionToUpdate) {
+        transactionToUpdate.status = "completed";
+        await this.transactionsRepository.save(transactionToUpdate);
+      }
+    }
+
     return { transaction, finalAmount, transactionId: transactionToCreate?.id };
   }
 
