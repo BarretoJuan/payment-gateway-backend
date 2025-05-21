@@ -3,9 +3,11 @@ import { CreateCourseDto } from "./dto/create-course.dto";
 import { UpdateCourseDto } from "./dto/update-course.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Courses } from "./entities/course.entity";
-import { DeepPartial, FindOneOptions, Repository } from "typeorm";
+import { DeepPartial, Equal, FindOneOptions, Not, Repository } from "typeorm";
 import { InstallmentService } from "../installment/installment.service";
 import { SupabaseService } from "../supabase/supabase.service";
+import { UserService } from "../user/user.service";
+import { UserCourseService } from "../user-course/user-course.service";
 
 @Injectable()
 export class CourseService {
@@ -14,6 +16,9 @@ export class CourseService {
     private coursesRepository: Repository<Courses>,
     private readonly installmentService: InstallmentService,
     private readonly supabaseService: SupabaseService,
+    private readonly userCoursesService: UserCourseService,
+    private readonly userService: UserService
+
   ) {}
 
   async create(createCourseDto: DeepPartial<Courses>) {
@@ -74,10 +79,28 @@ export class CourseService {
   }
 
   async remove(id: string) {
-    return await this.coursesRepository.update(id, { deletedAt: new Date() });
-  }
+    const course = await this.coursesRepository.findOne({ where: { id } });
+    if (!course) {
+      throw new Error("Course not found");
+    }
+    console.log("course", course)
+
+    const userCourses = await this.userCoursesService.find({where: {course: Equal(course.id), status: Not('cancelled') }, relations: ["user"]});
+    console.log("userCourses", userCourses)
+    for (const userCourse of userCourses) {
+      
+      userCourse.status = "cancelled";
+      await this.userCoursesService.update(userCourse.id, userCourse);
+      let userBalance = Number(userCourse.user.balance);
+      console.log("userBalance", userBalance, "userCourse.balance", +userCourse.balance)
+      userCourse!.user!.balance = userCourse.user!.balance ? (userBalance + Number(userCourse.balance)).toString() : "0";
+      await this.userService.update(userCourse.user.id, userCourse.user!);
+    }
+  return await this.coursesRepository.update(id, { deletedAt: new Date() });
+}
 
   async uploadFile(file: Express.Multer.File) {
+    console.log("upload File:", file)
     this.supabaseService;
     const { data, error } = await this.supabaseService
       .getClient()
@@ -92,12 +115,13 @@ export class CourseService {
     }
 
     const imagePath = data;
+    console.log("imagePath uploadFile", imagePath);
 
     const url = this.supabaseService
       .getClient()
       .storage.from("courses-images")
       .getPublicUrl(imagePath.path);
-
+    console.log("url uploadFile", url);
     return { url: url.data.publicUrl };
   }
 }

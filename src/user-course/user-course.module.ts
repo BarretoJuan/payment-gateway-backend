@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { UserCourseService } from "./user-course.service";
 import { UserCourseController } from "./user-course.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -12,7 +12,7 @@ import { CourseModule } from "../course/course.module";
     TypeOrmModule.forFeature([UserCourse]),
     AuthModule,
     UserModule,
-    CourseModule,
+    forwardRef(() => CourseModule),
   ],
   controllers: [UserCourseController],
   providers: [UserCourseService],

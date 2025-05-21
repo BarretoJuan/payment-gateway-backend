@@ -23,6 +23,11 @@ export class Company {
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   created_at: Date;
 
+  @Column("text", { name: "image", nullable: true })
+  image: string | null;
+
+  
+
   @Column({
     type: "timestamp",
     default: () => "CURRENT_TIMESTAMP",

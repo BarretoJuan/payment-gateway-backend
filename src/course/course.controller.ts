@@ -26,6 +26,7 @@ export class CourseController {
   @Post()
   @UseGuards(AuthGuard)
   create(@Body() createCourseDto: DeepPartial<Courses>) {
+    console.log("pipiipip", createCourseDto)
     return this.courseService.create(createCourseDto);
   }
 
@@ -39,7 +40,9 @@ export class CourseController {
   @UseInterceptors(FileInterceptor("file"))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     console.log(file);
-    return await this.courseService.uploadFile(file);
+    const response = await this.courseService.uploadFile(file);
+    console.log("upload file controller", response);
+    return response;
   }
 
   @Get(":id")
@@ -55,7 +58,6 @@ export class CourseController {
   }
 
   @Delete(":id")
-  @UseGuards(AuthGuard)
   remove(@Param("id") id: string) {
     return this.courseService.remove(id);
   }

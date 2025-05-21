@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { CreateUserCourseDto } from "./dto/create-user-course.dto";
 import { UpdateUserCourseDto } from "./dto/update-user-course.dto";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -17,6 +17,7 @@ export class UserCourseService {
     @InjectRepository(UserCourse)
     private userCoursesRepository: Repository<UserCourse>,
     private readonly usersService: UserService,
+    @Inject(forwardRef(() => CourseService))
     private readonly coursesService: CourseService,
   ) {}
 
@@ -105,6 +106,10 @@ export class UserCourseService {
       relations: ["user", "course"],
       where: { status: "cancelled" }, //auditing purposes
     });
+  }
+
+  async find(findOptions: FindOneOptions<UserCourse>) {
+    return await this.userCoursesRepository.find(findOptions);
   }
 
   async findOne(findOneOptions: FindOneOptions<UserCourse>) {
