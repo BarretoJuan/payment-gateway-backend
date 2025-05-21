@@ -119,7 +119,7 @@ export class TransactionService {
       user.balance = "0";
     }
 
-    await this.usersService.update(userId, { balance: user.balance });
+    // await this.usersService.update(userId, { balance: user.balance });
     createTransactionDto.amount = finalAmount.toString();
     let transactionToCreate: Transaction | undefined;
     let transaction: Transaction;
@@ -207,6 +207,11 @@ export class TransactionService {
       return "User course not found";
     }
 
+    const user = await this.usersService.findOne({where : { id: Equal(transaction.user.id) }});
+    if (!user) {
+      return "User not found";
+    }
+
     let userOperator;
     if (validatedBy) {
       userOperator = await this.usersService.findOne({
@@ -236,6 +241,10 @@ export class TransactionService {
       : 0;
     let userCourseBalance = userCourse ? +userCourse.balance : 0;
     if (transaction.status === "completed") {
+      user.balance = (Number(user.balance) - Number(transaction.userBalanceAmount)).toString();
+      await this.usersService.update(user.id, {
+        balance: user.balance,
+      });
       if (userCourseBalance < coursePrice) {
         const remaining = coursePrice - userCourseBalance;
 
