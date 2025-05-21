@@ -182,7 +182,8 @@ export class TransactionService {
 
   async updateTransactionStatus(
     id: string,
-    status: "completed" | "rejected",
+    status: "completed" | "rejected" | null,
+    paymentMethod: "zelle" | "paypal" | null,
     validatedBy?: string,
     reference?: string,
     description?: string,
@@ -232,6 +233,7 @@ export class TransactionService {
     if (status === transaction.status) {
       return "Transaction already has this status";
     }
+    transaction.paymentMethod = paymentMethod;
     transaction.status = status;
     transaction.updatedAt = new Date(); // Set to null if not already set
     await this.transactionsRepository.save(transaction);
