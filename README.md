@@ -1,9 +1,7 @@
 ## Roadmap
-[x] Agregar un redireccionamiento a login o la pantalla de inicio correspondiente al entrar a localhost:4200
-
-[x] Agregar loaders o spinners a los botones (registro, inicio de sesión, creación de cursos, creación de transacciones...)
-
-[x] Implementar el logout -> Aplica a Admin y User, falta implementar la vista completa de Operador y luego implementar el logout
+-[x] Agregar un redireccionamiento a login o la pantalla de inicio correspondiente al entrar a localhost:4200
+-[x] Agregar loaders o spinners a los botones (registro, inicio de sesión, creación de cursos, creación de transacciones...)
+-[x] Implementar el logout -> Aplica a Admin y User, falta implementar la vista completa de Operador y luego implementar el logout
 
 [ ] Recibir datos reales de la base de datos para el admin dashboard
 
