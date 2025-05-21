@@ -26,7 +26,17 @@ export class Company {
   @Column("text", { name: "image", nullable: true })
   image: string | null;
 
-  
+  @Column("enum", {
+    name: "payment_preference",
+    nullable: true,
+    default: "both",
+    enum: ["paypal", "zelle", "both"],
+  })
+  payment_preference:
+    | "paypal"
+    | "zelle"
+    | "both"
+    | null;
 
   @Column({
     type: "timestamp",
