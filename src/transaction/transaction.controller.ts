@@ -74,6 +74,7 @@ export class TransactionController {
     return this.transactionService.updateTransactionStatus(
       body.id,
       body?.status,
+      body?.paymentMethod,
       body?.validatedById,
       body?.reference,
       body?.description,
