@@ -312,8 +312,15 @@ export class TransactionService {
   }})
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} transaction`;
+  async findOne(id: string) {
+    return await this.transactionsRepository.findOne({
+      where: { id: Equal(id) }});
+  }
+
+  async setReference(transaction: Transaction, reference: string) {
+    transaction.reference = reference;
+    await this.transactionsRepository.save(transaction);
+    return transaction;
   }
 
   update(id: number, updateTransactionDto: UpdateTransactionDto) {

@@ -45,6 +45,29 @@ export class TransactionController {
     return await this.transactionService.createOrder(body.transactionId);
   }
 
+  @Patch("reference")
+  async setReference(
+    @Body() body : {id: string, reference: string} ) {
+      const transaction = await this.transactionService.findOne(body.id);
+
+      if (!transaction) {
+        throw new Error("Transaction not found");
+      }
+
+      if (transaction.reference) {
+        throw new Error("Transaction already has a reference");
+      }
+      
+      if (transaction.paymentMethod !== "zelle") {
+        throw new Error("Transaction is not a Zelle transaction");
+      }
+
+      return await this.transactionService.setReference(
+        transaction,
+        body.reference,
+      );
+    }
+
   @Patch()
   @UseGuards(AuthGuard)
   update(@Body() body) {
@@ -65,8 +88,9 @@ export class TransactionController {
   @UseGuards(AuthGuard)
   @Get(":id")
   findOne(@Param("id") id: string) {
-    return this.transactionService.findOne(+id);
+    return this.transactionService.findOne(id);
   }
+
 
   @UseGuards(AuthGuard)
   @Delete(":id")
