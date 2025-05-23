@@ -410,12 +410,22 @@ export class TransactionService {
     const transactions = await this.transactionsRepository.find({
       where: {
         status: "in_process",
-        createdAt: LessThan(new Date(Date.now() - 1 * 60 * 60 * 1000)), // 1 hour ago
+        createdAt: LessThan(new Date(Date.now() - 1 * 30 * 60 * 1000)), // 1 hour ago
       },
       relations: ["user"],
     });
-
+    let userCourse: any;
     for (const transaction of transactions) {
+      userCourse = await this.userCourseService.findOne({
+        where: {
+          user: Equal(transaction.user.id),
+          course: Equal(transaction.course.id),
+        },
+      });
+      if (userCourse) {
+        await this.userCourseService.update(userCourse.id, {
+          deletedAt: new Date()})
+      }
       if (transaction.userBalanceAmount) {
         const userBalance = transaction.user.balance
           ? +transaction.user.balance
