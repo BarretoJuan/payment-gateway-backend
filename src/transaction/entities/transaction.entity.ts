@@ -46,7 +46,7 @@ export class Transaction {
   @Column("enum", {
     name: "status",
     nullable: true,
-    enum: ["completed", "in_process", "rejected", "ready_to_be_checked"],
+    enum: ["completed", "in_process", "rejected", "ready_to_be_checked", null],
   })
   status:
     | "completed"

@@ -27,9 +27,9 @@ export class UserCourse {
   @Column("enum", {
     name: "status",
     nullable: true,
-    enum: ["acquired", "not_acquired", "cancelled", "expired"],
+    enum: ["acquired", "not_acquired", "cancelled", "expired", "transactable"],
   })
-  status: "acquired" | "not_acquired" | "cancelled" | "expired" | null;
+  status: "acquired" | "not_acquired" | "cancelled" | "expired" | "transactable" | null;
 
   @Column("character varying", { name: "cancellation_reason", nullable: true })
   cancellationReason: string | null;

@@ -69,7 +69,18 @@ export class UserCourseService {
         (course) => !userCourseIds.includes(course.id),
       );
 
-      return notBoughtCourses;
+      const transactableUserCourses = await this.userCoursesRepository.find({
+        relations: ["course"],
+        where: {
+          user: Equal(userId),
+          status: Equal("transactable"),
+        },
+      });
+
+      // Add course relations from transactableUserCourses to notBoughtCourses
+      const transactableCourses = transactableUserCourses.map((uc) => uc.course);
+
+      return [...notBoughtCourses, ...transactableCourses];
     }
     if (status !== null) {
       const userCourses = await this.userCoursesRepository.find({

@@ -7,7 +7,7 @@ import { HttpService } from "@nestjs/axios";
 import { firstValueFrom } from "rxjs";
 
 import { Transaction } from "./entities/transaction.entity";
-import {  Equal, LessThan,  Repository } from "typeorm";
+import {  Equal, In, IsNull, LessThan,  Repository } from "typeorm";
 import { UserService } from "../user/user.service";
 import { CourseService } from "../course/course.service";
 import { UserCourseService } from "../user-course/user-course.service";
@@ -405,15 +405,23 @@ export class TransactionService {
     return response.data;
   }
 
-  @Cron("30 * * * *")
+  @Cron('*/10 * * * *')
   async cancelExpiredTransactions() {
-    const transactions = await this.transactionsRepository.find({
+    console.log("Cancelling expired transactions");
+    let transactions = await this.transactionsRepository.find({
       where: {
         status: "in_process",
-        createdAt: LessThan(new Date(Date.now() - 1 * 30 * 60 * 1000)), // 1 hour ago
+        createdAt: LessThan(new Date(Date.now() - 1 * 10 * 60 * 1000)), // 10 minutes ago
       },
-      relations: ["user"],
+      relations: ["user", "course"],
     });
+    const nullTransactions = await this.transactionsRepository.find({
+      where: {
+        status: IsNull(),
+        createdAt: LessThan(new Date(Date.now() - 1 * 1 * 60 * 1000)), // 1 hour ago
+      },
+      relations: ["user", "course"],});
+      transactions = [...transactions, ...nullTransactions];
     let userCourse: any;
     for (const transaction of transactions) {
       userCourse = await this.userCourseService.findOne({
@@ -424,7 +432,7 @@ export class TransactionService {
       });
       if (userCourse) {
         await this.userCourseService.update(userCourse.id, {
-          deletedAt: new Date()})
+          status: "transactable"})
       }
       if (transaction.userBalanceAmount) {
         const userBalance = transaction.user.balance
@@ -435,8 +443,7 @@ export class TransactionService {
           balance: newUserBalance.toString(),
         });
       }
-      transaction.deletedAt = new Date();
-      await this.transactionsRepository.save(transaction);
+      await this.transactionsRepository.delete(transaction.id);
     }
   }
 }
