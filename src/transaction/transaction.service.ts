@@ -30,6 +30,10 @@ export class TransactionService {
   ) {}
 
   async create(createTransactionDto: CreateTransactionDto) {
+    console.log(
+      "createTransactionDto111",
+      createTransactionDto,
+    )
 
     const userId = createTransactionDto?.userId as string;
     const courseId = createTransactionDto?.courseId as string;
@@ -57,6 +61,7 @@ export class TransactionService {
         courseId: courseId,
       };
       await this.userCourseService.create(userCourseDto);
+      console.log("userCourseDto222", userCourseDto);
       userCourse = await this.userCourseService.findOne({
         where: { user: Equal(userId), course: Equal(courseId) },
       });
@@ -107,7 +112,7 @@ export class TransactionService {
       createTransactionDto.userBalanceAmount = orderPrice.toString();
       finalAmount = 0;
       userCourse!.balance = orderPrice.toString();
-      userCourse!.status = "acquired";
+      userCourse!.status = "not_acquired";
       await this.userCourseService.update(userCourse!.id, {
         balance: userCourse!.balance,
         status: userCourse!.status,
@@ -418,7 +423,7 @@ export class TransactionService {
     const nullTransactions = await this.transactionsRepository.find({
       where: {
         status: IsNull(),
-        createdAt: LessThan(new Date(Date.now() - 1 * 1 * 60 * 1000)), // 1 hour ago
+        createdAt: LessThan(new Date(Date.now() - 1 * 10 * 60 * 1000)), // 10 minute ago
       },
       relations: ["user", "course"],});
       transactions = [...transactions, ...nullTransactions];
@@ -434,7 +439,7 @@ export class TransactionService {
         await this.userCourseService.update(userCourse.id, {
           status: "transactable"})
       }
-      if (transaction.userBalanceAmount) {
+      if (transaction.userBalanceAmount && transaction.status === null) {
         const userBalance = transaction.user.balance
           ? +transaction.user.balance
           : 0;
