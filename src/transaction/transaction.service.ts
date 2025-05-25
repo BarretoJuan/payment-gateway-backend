@@ -312,6 +312,7 @@ export class TransactionService {
 
   async setReference(transaction: Transaction, reference: string) {
     transaction.reference = reference;
+    transaction.status = "ready_to_be_checked";
     await this.transactionsRepository.save(transaction);
     return transaction;
   }
