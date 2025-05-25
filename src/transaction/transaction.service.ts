@@ -269,7 +269,7 @@ export class TransactionService {
       // }
       await this.userCourseService.update(userCourse.id, {
         status: "acquired",
-        balance: userCourseBalance.toString(),
+        balance: (Number(userCourseBalance)+  Number(transaction.userBalanceAmount)+Number(transaction.amount)).toString(),
       });
     }
     if (transaction.status === "rejected") {
