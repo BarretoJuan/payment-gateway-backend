@@ -109,6 +109,7 @@ export class TransactionService {
     if (userBalance >= orderPrice) {
 
       user.balance = (userBalance - orderPrice).toString();
+      console.log("Balance - Precio - Precio a pagar111", userBalance, orderPrice.toString(), finalAmount);
       createTransactionDto.userBalanceAmount = orderPrice.toString();
       finalAmount = 0;
       userCourse!.balance = orderPrice.toString();
@@ -119,6 +120,7 @@ export class TransactionService {
       });
     } else {
       finalAmount = orderPrice - userBalance;
+      console.log("Balance - Precio - Precio a pagar222", userBalance, orderPrice.toString(), finalAmount);
       createTransactionDto.userBalanceAmount = userBalance.toString();
       console.log("Balance - Precio - Precio a pagar", userBalance, orderPrice, finalAmount);
       user.balance = "0";
@@ -128,59 +130,21 @@ export class TransactionService {
     createTransactionDto.amount = finalAmount.toString();
     let transactionToCreate: Transaction | undefined;
     let transaction: Transaction;
-    if (createTransactionDto.paymentMethod === "paypal") {
-      createTransactionDto.status = "in_process";
-      transaction = this.transactionsRepository.create({
-        user: user,
-        course: course,
-        amount: createTransactionDto.amount,
-        status: createTransactionDto.status,
-        paymentMethod: createTransactionDto.paymentMethod,
-      });
-      transactionToCreate = await this.transactionsRepository.save(transaction);
-    } else if (createTransactionDto.paymentMethod === "zelle") {
-      createTransactionDto.status = "ready_to_be_checked";
 
-      createTransactionDto.user = user;
-      createTransactionDto.course = course;
-      transaction = this.transactionsRepository.create({
-...createTransactionDto
-      });
-
-      transactionToCreate = await this.transactionsRepository.save(transaction);
-    }
-    else if (createTransactionDto.paymentMethod === null) {
+    if (createTransactionDto.paymentMethod === null) {
       createTransactionDto.user = user;
       createTransactionDto.course = course;
       transaction = this.transactionsRepository.create({
         ...createTransactionDto,
       });
+      console.log("444", createTransactionDto)
       transactionToCreate = await this.transactionsRepository.save(transaction);
+      console.log("333", transactionToCreate);
     } 
     else {
       return { error: true, message: "Payment method not found" };
     }
 
-    // if (finalAmount === 0) { 
-    //   const userCourse = await this.userCourseService.findOne({
-    //     where: { user: Equal(userId), course: Equal(courseId) },
-    //   });
-    //   if (userCourse) {
-    //     userCourse.status = "acquired";
-    //     await this.userCourseService.update(userCourse.id, {
-    //       status: userCourse.status,
-    //     });
-    //   }
-
-    //   const transactionToUpdate = await this.transactionsRepository.findOne({
-    //     where: { id: Equal(transactionToCreate.id) },
-    //     relations: ["user", "course"],
-    //   });
-    //   if (transactionToUpdate) {
-    //     transactionToUpdate.status = "completed";
-    //     await this.transactionsRepository.save(transactionToUpdate);
-    //   }
-    // }
 
     return { transaction, finalAmount, transactionId: transactionToCreate?.id };
   }
@@ -218,6 +182,30 @@ export class TransactionService {
       return "User not found";
     }
 
+    //     // 💰 Aplicar balance del usuario
+    // const userBalance = user.balance ? +user.balance : 0;
+
+    // let orderPrice = +!transaction.amount;
+    // let finalAmount = orderPrice;
+
+    // if (userBalance >= orderPrice) {
+
+    //   user.balance = (userBalance - orderPrice).toString();
+    //   transaction.userBalanceAmount = orderPrice.toString();
+    //   finalAmount = 0;
+    //   userCourse!.balance = orderPrice.toString();
+    //   userCourse!.status = "not_acquired";
+    //   await this.userCourseService.update(userCourse!.id, {
+    //     balance: userCourse!.balance,
+    //     status: userCourse!.status,
+    //   });
+    // } else {
+    //   finalAmount = orderPrice - userBalance;
+    //   transaction.userBalanceAmount = userBalance.toString();
+    //   console.log("Balance - Precio - Precio a pagar", userBalance, orderPrice, finalAmount);
+    //   user.balance = "0";
+    // }
+
     let userOperator;
     if (validatedBy) {
       userOperator = await this.usersService.findOne({
@@ -252,33 +240,33 @@ export class TransactionService {
       await this.usersService.update(user.id, {
         balance: user.balance,
       });
-      if (userCourseBalance < coursePrice) {
-        const remaining = coursePrice - userCourseBalance;
+      // if (userCourseBalance < coursePrice) {
+      //   const remaining = coursePrice - userCourseBalance;
 
-        if (transactionAmount > remaining) {
-          userCourseBalance += remaining;
-          await this.userCourseService.update(userCourse.id, {
-            balance: userCourseBalance.toString(),
-          });
-          const remainingTransactionAmount = transactionAmount - remaining;
-          const UserBalance = userCourse.user.balance
-            ? +userCourse.user.balance
-            : 0;
-          const newUserBalance = UserBalance + remainingTransactionAmount;
-          await this.usersService.update(userCourse.user.id, {
-            balance: newUserBalance.toString(),
-          });
-        } else {
-          userCourseBalance += transactionAmount;
-          await this.userCourseService.update(userCourse.id, {
-            balance: userCourseBalance.toString(),
-          });
-        }
-      } else {
-        await this.usersService.update(userCourse.user.id, {
-          balance: userCourse.user.balance + transactionAmount.toString(),
-        });
-      }
+      //   if (transactionAmount > remaining) {
+      //     userCourseBalance += remaining;
+      //     await this.userCourseService.update(userCourse.id, {
+      //       balance: userCourseBalance.toString(),
+      //     });
+      //     const remainingTransactionAmount = transactionAmount - remaining;
+      //     const UserBalance = userCourse.user.balance
+      //       ? +userCourse.user.balance
+      //       : 0;
+      //     const newUserBalance = UserBalance + remainingTransactionAmount;
+      //     await this.usersService.update(userCourse.user.id, {
+      //       balance: newUserBalance.toString(),
+      //     });
+      //   } else {
+      //     userCourseBalance += transactionAmount;
+      //     await this.userCourseService.update(userCourse.id, {
+      //       balance: userCourseBalance.toString(),
+      //     });
+      //   }
+      // } else {
+      //   await this.usersService.update(userCourse.user.id, {
+      //     balance: (Number(userCourse.user.balance) + Number(transactionAmount)).toString(),
+      //   });
+      // }
       await this.userCourseService.update(userCourse.id, {
         status: "acquired",
         balance: userCourseBalance.toString(),
