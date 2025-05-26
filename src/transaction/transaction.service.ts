@@ -90,6 +90,7 @@ export class TransactionService {
         }
 
         orderPrice = course.price ? (totalPercentage / 100) * +course.price : 0;
+        orderPrice = orderPrice - Number(userCourse!.balance)
 
       } else {
 
