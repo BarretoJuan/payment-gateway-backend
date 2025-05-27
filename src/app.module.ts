@@ -14,9 +14,21 @@ import { CompanyModule } from "./company/company.module";
 import { InstallmentModule } from "./installment/installment.module";
 import { HttpModule } from "@nestjs/axios";
 import { ScheduleModule } from "@nestjs/schedule";
+import { OneTimePasswordModule } from './one-time-password/one-time-password.module';
+import { MailerModule } from "@nestjs-modules/mailer";
 
 @Module({
-  imports: [
+  imports: [ MailerModule.forRoot({
+      transport: {
+        host: process.env.SMTP_HOST,
+        port: +(process.env.SMTP_PORT || '587'), 
+        secure: true,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASSWORD,
+        },
+      },
+    }),
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
     HttpModule,
@@ -37,6 +49,7 @@ import { ScheduleModule } from "@nestjs/schedule";
     AuthModule,
     CompanyModule,
     InstallmentModule,
+    OneTimePasswordModule,
   ],
   controllers: [AppController],
   providers: [AppService, SupabaseService],

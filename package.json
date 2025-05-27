@@ -24,6 +24,7 @@
     "migrations:revert": "npx typeorm-ts-node-commonjs migration:revert -- -d typeorm/data.source.ts"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/axios": "^4.0.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.0",
@@ -38,6 +39,7 @@
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.7",
     "nestjs-supabase-auth": "^1.0.9",
+    "nodemailer": "^7.0.3",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.13.1",

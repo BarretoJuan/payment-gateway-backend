@@ -1,6 +1,7 @@
 import { Column, Entity, Index, OneToMany } from "typeorm";
 import { Transaction } from "../../transaction/entities/transaction.entity";
 import { UserCourse } from "../../user-course/entities/user-course.entity";
+import { OneTimePassword } from "../../one-time-password/entities/one-time-password.entity";
 
 @Index("USER_email_key", ["email"], { unique: true })
 @Index("UQ_c090db0477be7a25259805e37c2", ["email"], { unique: true })
@@ -53,6 +54,9 @@ export class User {
 
   @Column("numeric", { name: "balance", nullable: true })
   balance: string | null;
+
+  @OneToMany(() => OneTimePassword, (oneTimePassword) => oneTimePassword.user)
+  oneTimePasswords: OneTimePassword[];
 
   @OneToMany(() => Transaction, (transaction) => transaction.user)
   transactions: Transaction[];
