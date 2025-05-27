@@ -7,17 +7,21 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { TransactionService } from "./transaction.service";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
-import { UpdateTransactionDto } from "./dto/update-transaction.dto";
 import { AuthGuard } from "../auth/auth.guard";
-import { DeepPartial } from "typeorm";
-import { Transaction } from "./entities/transaction.entity";
+import { AuthService } from "../auth/auth.service";
+
 
 @Controller("transaction")
 export class TransactionController {
-  constructor(private readonly transactionService: TransactionService) {}
+  constructor(
+    private readonly transactionService: TransactionService,
+    private readonly authService: AuthService
+  ) {}
 
   @Post()
   @UseGuards(AuthGuard)
@@ -29,6 +33,36 @@ export class TransactionController {
   @Get()
   findAll() {
     return this.transactionService.findAll();
+  }
+  
+  @UseGuards(AuthGuard)
+  @Get("user-transactions-history")
+  async findTransactionsHistory(@Body() body: any, @Req() req: Request, @Body('token') token: string) {
+    const accessToken: string = req.headers["authorization"]?.split(" ")[1];
+    const decodedToken = await this.authService.validateUser(accessToken);
+    if (!decodedToken) {
+      throw new UnauthorizedException("Invalid token");
+    }
+  console.log("decodedToken", decodedToken);
+  return await this.transactionService.getUserTransactionsHistory(decodedToken!.user!.id);      
+  }
+
+  @UseGuards(AuthGuard)
+  @Get("operator-transactions-history")
+  async findOperatorTransactionsHistory(@Body() body: any, @Req() req: Request, @Body('token') token: string) {
+    const accessToken: string = req.headers["authorization"]?.split(" ")[1];
+    const decodedToken = await this.authService.validateUser(accessToken);
+    if (!decodedToken) {
+      throw new UnauthorizedException("Invalid token");
+    }
+    console.log("decodedToken", decodedToken);
+    if (decodedToken!.user!.role !== "accounting" && decodedToken!.user!.role !== "admin") {
+      console.log("User is not an operator", decodedToken!.user!.role); 
+        throw new UnauthorizedException("User is not an operator");
+    }
+  
+    return await this.transactionService.getOperatorTransactionsHistory(decodedToken!.user!.id);
+
   }
 
   
@@ -70,15 +104,8 @@ export class TransactionController {
 
   @Patch()
   @UseGuards(AuthGuard)
-  update(@Body() body) {
-    return this.transactionService.updateTransactionStatus(
-      body.id,
-      body?.status,
-      body?.paymentMethod,
-      body?.validatedById,
-      body?.reference,
-      body?.description,
-    );
+  update(@Body() body: { id: string, status?: "completed" | "rejected" | null, paymentMethod?: "zelle" | "paypal" | null, validatedBy?: string, reference?: string, description?: string }) {
+    return this.transactionService.updateTransactionStatus(body);
   }
 
   @Post(":orderID/capture")

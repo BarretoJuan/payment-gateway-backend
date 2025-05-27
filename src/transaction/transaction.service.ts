@@ -7,7 +7,7 @@ import { HttpService } from "@nestjs/axios";
 import { firstValueFrom } from "rxjs";
 
 import { Transaction } from "./entities/transaction.entity";
-import {  Equal, In, IsNull, LessThan,  Repository } from "typeorm";
+import {  Equal, In, IsNull, LessThan,  Not,  Repository } from "typeorm";
 import { UserService } from "../user/user.service";
 import { CourseService } from "../course/course.service";
 import { UserCourseService } from "../user-course/user-course.service";
@@ -150,14 +150,38 @@ export class TransactionService {
     return { transaction, finalAmount, transactionId: transactionToCreate?.id };
   }
 
-  async updateTransactionStatus(
+  async getOperatorTransactionsHistory(userId: string) {
+  
+    const  transactions = await this.transactionsRepository.find({
+      where: { validatedBy: { id: Equal(userId) } },
+      relations: ["course", "user"],
+    });
+    return transactions
+  }
+
+  async getUserTransactionsHistory(userId: string) {
+
+    const transactions = await this.transactionsRepository.find({
+      where: { user : {id: Equal(userId)}, status: Not("in_process") && Not(IsNull())  },
+      relations: ["course", "user"],
+    });
+    return transactions;
+  }
+  async updateTransactionStatus({
+    id,
+    status,
+    paymentMethod,
+    validatedBy,
+    reference,
+    description
+}: {
     id: string,
-    status: "completed" | "rejected" | null,
-    paymentMethod: "zelle" | "paypal" | null,
+    status?: "completed" | "rejected" | null,
+    paymentMethod?: "zelle" | "paypal" | null,
     validatedBy?: string,
     reference?: string,
-    description?: string,
-  ) {
+    description?: string
+}) {
     const transaction = await this.transactionsRepository.findOne({
       where: { id: Equal(id) },
       relations: ["user", "course"],
@@ -227,8 +251,12 @@ export class TransactionService {
     if (status === transaction.status) {
       return "Transaction already has this status";
     }
-    transaction.paymentMethod = paymentMethod;
-    transaction.status = status;
+    if (paymentMethod !== undefined) {
+      transaction.paymentMethod = paymentMethod;
+    }
+    if (status !== undefined) {
+      transaction.status = status;
+    }
     transaction.updatedAt = new Date(); // Set to null if not already set
     await this.transactionsRepository.save(transaction);
     const transactionAmount = transaction.amount ? +transaction.amount : 0;

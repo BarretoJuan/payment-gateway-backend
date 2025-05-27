@@ -17,6 +17,7 @@ import { UserCourseModule } from "../user-course/user-course.module";
     UserModule,
     CourseModule,
     UserCourseModule,
+    AuthModule,
   ],
   controllers: [TransactionController],
   providers: [TransactionService],
