@@ -307,4 +307,45 @@ async updatePassword(user: User, newPassword: string) {
 
   return { message: "Password updated successfully", data };
 }
+
+async updateEmail(user: User, newEmail: string) {
+  const email = user.email;
+
+  const userExists = await this.usersService.findOne({
+    where: { email: Equal(newEmail) },
+  });
+  if (userExists) {
+    return false
+  }
+
+  // First, get the user ID from the email
+  // List all users and filter manually
+  const { data: userList, error: userError } = await this.supabaseService
+    .getClient()
+    .auth.admin.listUsers();
+
+  if (userError) {
+   return false
+  }
+
+  const userData = userList.users.find(u => u.email === email);
+  
+  if (!userData) {
+    return false
+  }
+
+  const userId = userData.id;
+
+  //update the email in the database
+  const { data, error } = await this.supabaseService
+    .getClient()
+    .auth.admin.updateUserById(userId, { email: newEmail });
+
+  if (error) {
+   return false
+  }
+
+  console.log( { message: "Email updated successfully", data });
+  return true;
+}
 }

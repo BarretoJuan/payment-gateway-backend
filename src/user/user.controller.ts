@@ -53,7 +53,7 @@ export class UserController {
   @Patch("/update/:id")
   @UseGuards(AuthGuard)
 
-  async updateUser(@Param("id") id: string, @Req() request: Request, @Body() updateUserDto: {firstName: string, lastName:string, role: "admin" | "accounting" | "user" | null, password: string, identificationNumber: string, balance: string}) {
+  async updateUser(@Param("id") id: string, @Req() request: Request, @Body() updateUserDto: {firstName: string, lastName:string, role: "admin" | "accounting" | "user" | null, password: string, email: string, identificationNumber: string, balance: string}) {
     
         const accessToken: string = request.headers["authorization"]?.split(" ")[1];
         const decodedToken = await this.authService.validateUser(accessToken);
@@ -66,6 +66,16 @@ export class UserController {
             throw new UnauthorizedException("Identification number already exists");
           }
 
+        }
+
+        if (!decodedToken) {
+          throw new UnauthorizedException("Invalid token");
+        }
+
+        if (id !== decodedToken.user?.id && decodedToken.user?.role?.toLocaleLowerCase() !== "admin") {
+          throw new UnauthorizedException(
+            "You are not authorized to perform this action",
+          );
         }
     
         if ((updateUserDto.role || updateUserDto.balance || updateUserDto.identificationNumber) && decodedToken.user?.role?.toLocaleLowerCase() !== "admin" ) {

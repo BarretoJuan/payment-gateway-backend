@@ -21,6 +21,12 @@ export class CourseService {
 
   ) {}
 
+  async findAllCourses() {
+    return await this.coursesRepository.find({
+      relations: ["installments"],
+    });
+  }
+
   async create(createCourseDto: DeepPartial<Courses>) {
     const course = await this.coursesRepository.save(createCourseDto);
 

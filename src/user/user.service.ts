@@ -49,18 +49,26 @@ export class UserService {
   }
 
   
-  async updateUser(id: string, updateUserDto: {firstName: string, lastName:string, role: "admin" | "accounting" | "user" | null, password: string, identificationNumber: string, balance: string}) {
+  async updateUser(id: string, updateUserDto: {firstName: string, lastName:string, role: "admin" | "accounting" | "user" | null, password: string, identificationNumber: string, balance: string, email: string}) {
    const user = await this.usersRepository.findOne({
       where: { id: Equal(id) },
     });
     if (!user) {
       throw new Error("User not found");
     }
-    {}
+ 
     if(updateUserDto.password) {
       await this.authService.updatePassword(user, updateUserDto.password);
     }
+    let emailUpdate: boolean = false;
+    if (updateUserDto.email) {
+      emailUpdate = await this.authService.updateEmail(user, updateUserDto.email);
+
+    }
      const { password, ...userToUpdate } = updateUserDto;
+     if (!emailUpdate) {
+      const { email, ...userToUpdate } = updateUserDto;
+     }
      await this.usersRepository.update(id, userToUpdate);
       return updateUserDto;
 
