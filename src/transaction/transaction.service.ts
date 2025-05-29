@@ -162,8 +162,8 @@ export class TransactionService {
 
     const totalCount = paypalCount + zelleCount;
     console.log("paypalCount", paypalCount, "zelleCount", zelleCount, "totalCount", totalCount);
-    const paypalPercentage = (totalCount > 0 ? (paypalCount / totalCount) * 100 : 0).toPrecision(4);
-    const zellePercentage = (totalCount > 0 ? (zelleCount / totalCount) * 100 : 0).toPrecision(4);
+    const paypalPercentage = (totalCount > 0 ? (paypalCount / totalCount) * 100 : 0).toFixed(2);
+    const zellePercentage = (totalCount > 0 ? (zelleCount / totalCount) * 100 : 0).toFixed(2);
 
     return [
        {name : "paypal", percentage: paypalPercentage} ,
