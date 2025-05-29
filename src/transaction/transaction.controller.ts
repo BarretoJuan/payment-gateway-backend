@@ -21,7 +21,7 @@ export class TransactionController {
   constructor(
     private readonly transactionService: TransactionService,
     private readonly authService: AuthService
-  ) {}
+  ) { }
 
   @Post()
   @UseGuards(AuthGuard)
@@ -52,41 +52,42 @@ export class TransactionController {
       return await this.transactionService.paymentMethodPercentage();
     } catch (error) {
       return [
-       {name : "paypal", percentage: 0} ,
-       {name : "zelle", percentage: 0} 
-    ];
+        { name: "paypal", percentage: 0 },
+        { name: "zelle", percentage: 0 }
+      ];
     }
   }
 
   @Get("last-transactions")
   async lastTransactions() {
-try {
+    try {
       return await this.transactionService.getLastTransactions();
-}
-catch (error) {
+    }
+    catch (error) {
       return [];
     }
   }
 
   @Post("expired-transactions-by-user")
-    @UseGuards(AuthGuard)
-    async expiredTransctionsByUser(
-      @Req() req,) {
-        const accessToken: string = req.headers["authorization"]?.split(" ")[1];
-        const decodedToken = await this.authService.validateUser(accessToken);
-  
-        if (!decodedToken) {
-          throw new UnauthorizedException("Invalid token");
-        }
-        if (decodedToken!.user!.role!.toLocaleLowerCase() !== "user") {
-          throw new UnauthorizedException(
-            "You are not authorized to perform this action",
-          );
-        }
-  
-      return await this.transactionService.cancelExpiredTransactionsByUser(decodedToken!.user!.id);
-      }
-  
+  @UseGuards(AuthGuard)
+  async expiredTransctionsByUser(
+    @Req() req,) {
+    console.log("expiredTransctionsByUser called");
+    const accessToken: string = req.headers["authorization"]?.split(" ")[1];
+    const decodedToken = await this.authService.validateUser(accessToken);
+
+    if (!decodedToken) {
+      throw new UnauthorizedException("Invalid token");
+    }
+    if (decodedToken!.user!.role!.toLocaleLowerCase() !== "user") {
+      throw new UnauthorizedException(
+        "You are not authorized to perform this action",
+      );
+    }
+
+    return await this.transactionService.cancelExpiredTransactionsByUser(decodedToken!.user!.id);
+  }
+
   @UseGuards(AuthGuard)
   @Get("user-transactions-history")
   async findTransactionsHistory(@Body() body: any, @Req() req: Request, @Body('token') token: string) {
@@ -95,8 +96,8 @@ catch (error) {
     if (!decodedToken) {
       throw new UnauthorizedException("Invalid token");
     }
-  console.log("decodedToken", decodedToken);
-  return await this.transactionService.getUserTransactionsHistory(decodedToken!.user!.id);      
+    console.log("decodedToken", decodedToken);
+    return await this.transactionService.getUserTransactionsHistory(decodedToken!.user!.id);
   }
 
   @UseGuards(AuthGuard)
@@ -109,16 +110,16 @@ catch (error) {
     }
     console.log("decodedToken", decodedToken);
     if (decodedToken!.user!.role !== "accounting" && decodedToken!.user!.role !== "admin") {
-      console.log("User is not an operator", decodedToken!.user!.role); 
-        throw new UnauthorizedException("User is not an operator");
+      console.log("User is not an operator", decodedToken!.user!.role);
+      throw new UnauthorizedException("User is not an operator");
     }
-  
+
     return await this.transactionService.getOperatorTransactionsHistory(decodedToken!.user!.id);
 
   }
 
-  
- @UseGuards(AuthGuard)
+
+  @UseGuards(AuthGuard)
   @Get("operator")
   findOperatorTransactions() {
     return this.transactionService.findOperator();
@@ -133,26 +134,26 @@ catch (error) {
 
   @Patch("reference")
   async setReference(
-    @Body() body : {id: string, reference: string} ) {
-      const transaction = await this.transactionService.findOne(body.id);
+    @Body() body: { id: string, reference: string }) {
+    const transaction = await this.transactionService.findOne(body.id);
 
-      if (!transaction) {
-        throw new Error("Transaction not found");
-      }
-
-      if (transaction.reference) {
-        throw new Error("Transaction already has a reference");
-      }
-      
-      if (transaction.paymentMethod !== "zelle") {
-        throw new Error("Transaction is not a Zelle transaction");
-      }
-
-      return await this.transactionService.setReference(
-        transaction,
-        body.reference,
-      );
+    if (!transaction) {
+      throw new Error("Transaction not found");
     }
+
+    if (transaction.reference) {
+      throw new Error("Transaction already has a reference");
+    }
+
+    if (transaction.paymentMethod !== "zelle") {
+      throw new Error("Transaction is not a Zelle transaction");
+    }
+
+    return await this.transactionService.setReference(
+      transaction,
+      body.reference,
+    );
+  }
 
   @Patch()
   @UseGuards(AuthGuard)
