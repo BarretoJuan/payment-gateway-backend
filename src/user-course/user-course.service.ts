@@ -52,7 +52,7 @@ export class UserCourseService {
   }
 
   async findUserCourses(
-    userId: number,
+    userId: string,
     status:
       | "acquired"
       | "not_acquired"

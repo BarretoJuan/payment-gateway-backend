@@ -36,7 +36,7 @@ export class UserCourseController {
   findUserCoursesByStatus(
     @Body()
     body: {
-      userId: number;
+      userId: string;
       status:
         | "acquired"
         | "not_acquired"

@@ -31,6 +31,36 @@ export class TransactionService {
     private readonly userCourseService: UserCourseService,
   ) {}
 
+  async getLastTransactions() {
+    let transactions = await this.transactionsRepository.find({
+      
+      relations: ["course", "user"],
+      select: { id: true, course: {name: true} , user: {email: true}, status: true, amount: true },
+      where: {
+        status: In(["completed", "rejected"]),
+        paymentMethod: In(["paypal", "zelle"]),
+      },
+      // Order by createdAt in descending order to get the latest transactions
+      order: { createdAt: "DESC" },
+    });
+    // Filter transactions whose amount (as number) is more than 0
+    transactions = transactions.filter(t => Number(t.amount) > 0);
+    
+    let returnTransactions: any[] = [];
+
+ for (const t of transactions) {
+        returnTransactions.push({
+        transactionId: t.id,
+        courseName: t.course.name,
+        userEmail: t.user.email,
+        status: t.status,
+      });
+      console.log("returnTransactions", returnTransactions);
+ }
+
+    return returnTransactions.slice(0, 10);
+  }
+
   async create(createTransactionDto: CreateTransactionDto) {
     console.log(
       "createTransactionDto111",

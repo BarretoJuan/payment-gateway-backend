@@ -57,6 +57,35 @@ export class TransactionController {
     ];
     }
   }
+
+  @Get("last-transactions")
+  async lastTransactions() {
+try {
+      return await this.transactionService.getLastTransactions();
+}
+catch (error) {
+      return [];
+    }
+  }
+
+  @Post("expired-transactions-by-user")
+    @UseGuards(AuthGuard)
+    async expiredTransctionsByUser(
+      @Req() req,) {
+        const accessToken: string = req.headers["authorization"]?.split(" ")[1];
+        const decodedToken = await this.authService.validateUser(accessToken);
+  
+        if (!decodedToken) {
+          throw new UnauthorizedException("Invalid token");
+        }
+        if (decodedToken!.user!.role!.toLocaleLowerCase() !== "user") {
+          throw new UnauthorizedException(
+            "You are not authorized to perform this action",
+          );
+        }
+  
+      return await this.transactionService.cancelExpiredTransactionsByUser(decodedToken!.user!.id);
+      }
   
   @UseGuards(AuthGuard)
   @Get("user-transactions-history")
