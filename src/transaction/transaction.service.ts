@@ -390,6 +390,7 @@ export class TransactionService {
   async findAll() {
     return await this.transactionsRepository.find({
       relations: ["course", "user", "validatedBy"],
+      order: { createdAt: "DESC" },
     });
   }
 
