@@ -7,7 +7,7 @@ import { HttpService } from "@nestjs/axios";
 import { firstValueFrom } from "rxjs";
 
 import { Transaction } from "./entities/transaction.entity";
-import {  Equal, In, IsNull, LessThan,  Not,  Repository } from "typeorm";
+import {  Equal, In, IsNull, LessThan,  MoreThan,  Not,  Repository } from "typeorm";
 import { UserService } from "../user/user.service";
 import { CourseService } from "../course/course.service";
 import { UserCourseService } from "../user-course/user-course.service";
@@ -151,11 +151,15 @@ export class TransactionService {
   }
 
   async getDashboardTransaction() {
-    const transactions = await this.transactionsRepository.find({
+    let transactions = await this.transactionsRepository.find({
       select: { id: true, amount: true, createdAt: true },
-      where: { status: "completed" },
-
+      where: {
+      status: "completed",
+      paymentMethod: In(["paypal", "zelle"]),
+      },order : { createdAt: "DESC" },
     });
+    // Filter transactions whose amount (as number) is more than 0
+    transactions = transactions.filter(t => Number(t.amount) > 0);
 
    return transactions;
   }
