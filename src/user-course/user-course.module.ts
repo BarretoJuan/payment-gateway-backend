@@ -6,6 +6,7 @@ import { UserCourse } from "./entities/user-course.entity";
 import { AuthModule } from "../auth/auth.module";
 import { UserModule } from "../user/user.module";
 import { CourseModule } from "../course/course.module";
+import { TransactionModule } from "../transaction/transaction.module";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { CourseModule } from "../course/course.module";
     AuthModule,
     UserModule,
     forwardRef(() => CourseModule),
+    forwardRef(() => TransactionModule)
   ],
   controllers: [UserCourseController],
   providers: [UserCourseService],

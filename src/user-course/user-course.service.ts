@@ -9,6 +9,7 @@ import { UserService } from "../user/user.service";
 const jwt = require("jsonwebtoken");
 import * as dotenv from "dotenv";
 import { Cron } from "@nestjs/schedule";
+import { TransactionService } from "../transaction/transaction.service";
 dotenv.config();
 
 @Injectable()
@@ -17,8 +18,10 @@ export class UserCourseService {
     @InjectRepository(UserCourse)
     private userCoursesRepository: Repository<UserCourse>,
     private readonly usersService: UserService,
-    @Inject(forwardRef(() => CourseService))
+  @Inject(forwardRef(() => CourseService))
     private readonly coursesService: CourseService,
+    @Inject(forwardRef(() => TransactionService))
+    private readonly transactionsService: TransactionService, // Assuming transactionsService is part of CourseService
   ) {}
 
   async create(createUserCourseDto: CreateUserCourseDto) {
@@ -57,6 +60,7 @@ export class UserCourseService {
       | "expired"
       | "not_bought",
   ) {
+    // await this.transactionsService.cancelExpiredTransactionsByUser(userId);
     if (status === "not_bought") {
       const allCourses = await this.coursesService.findAll();
       const userCourses = await this.userCoursesRepository.find({

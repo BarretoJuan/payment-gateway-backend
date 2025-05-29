@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
 import { UpdateTransactionDto } from "./dto/update-transaction.dto";
 import { ConfigService } from "@nestjs/config";
@@ -25,7 +25,9 @@ export class TransactionService {
     @InjectRepository(Transaction)
     private transactionsRepository: Repository<Transaction>,
     private readonly usersService: UserService,
+    @Inject(forwardRef(() => CourseService))
     private readonly coursesService: CourseService,
+    @Inject(forwardRef(() => UserCourseService))
     private readonly userCourseService: UserCourseService,
   ) {}
 
@@ -113,10 +115,10 @@ export class TransactionService {
       console.log("Balance - Precio - Precio a pagar111", userBalance, orderPrice.toString(), finalAmount);
       createTransactionDto.userBalanceAmount = orderPrice.toString();
       finalAmount = 0;
-      userCourse!.balance = orderPrice.toString();
+      //userCourse!.balance = orderPrice.toString();
       userCourse!.status = "not_acquired";
       await this.userCourseService.update(userCourse!.id, {
-        balance: userCourse!.balance,
+        //balance: userCourse!.balance,
         status: userCourse!.status,
       });
     } else {
@@ -492,14 +494,47 @@ export class TransactionService {
         await this.userCourseService.update(userCourse.id, {
           status: "transactable"})
       }
-      if (transaction.userBalanceAmount && transaction.status === null) {
-        const userBalance = transaction.user.balance
-          ? +transaction.user.balance
-          : 0;
-        const newUserBalance = userBalance + +transaction.userBalanceAmount;
-        await this.usersService.update(transaction.user.id, {
-          balance: newUserBalance.toString(),
-        });
+      // if (transaction.userBalanceAmount && transaction.status === null) {
+      //   const userBalance = transaction.user.balance
+      //     ? +transaction.user.balance
+      //     : 0;
+      //   const newUserBalance = userBalance + +transaction.userBalanceAmount;
+      //   await this.usersService.update(transaction.user.id, {
+      //     balance: newUserBalance.toString(),
+      //   });
+      // }
+      await this.transactionsRepository.delete(transaction.id);
+    }
+  }
+
+
+   async cancelExpiredTransactionsByUser(userId : string) {
+    console.log("Cancelling expired transactions BY USER ", userId);
+    let transactions = await this.transactionsRepository.find({
+      where: {
+        status: "in_process",
+        user: {id: Equal(userId)},
+      },
+      relations: ["user", "course"],
+    });
+    const nullTransactions = await this.transactionsRepository.find({
+      where: {
+        status: IsNull(),
+        user: {id: Equal(userId)},  
+      },
+      relations: ["user", "course"],});
+      transactions = [...transactions, ...nullTransactions];
+    let userCourse: any;
+    for (const transaction of transactions) {
+      userCourse = await this.userCourseService.findOne({
+        where: {
+          user: Equal(transaction.user.id),
+          course: Equal(transaction.course.id),
+        },
+      });
+      if (userCourse) {
+        await this.userCourseService.update(userCourse.id, {
+          status: "transactable"})
       }
       await this.transactionsRepository.delete(transaction.id);
     }

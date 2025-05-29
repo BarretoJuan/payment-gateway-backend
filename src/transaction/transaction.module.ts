@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { TransactionService } from "./transaction.service";
 import { TransactionController } from "./transaction.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -15,11 +15,13 @@ import { UserCourseModule } from "../user-course/user-course.module";
     AuthModule,
     HttpModule,
     UserModule,
-    CourseModule,
-    UserCourseModule,
+    forwardRef(() => UserModule),
+    forwardRef(() => CourseModule),
+    forwardRef(() => UserCourseModule),
     AuthModule,
   ],
   controllers: [TransactionController],
   providers: [TransactionService],
+  exports: [TransactionService],
 })
 export class TransactionModule {}
