@@ -67,7 +67,7 @@ export class UserService {
     }
      const { password, ...userToUpdate } = updateUserDto;
      if (!emailUpdate) {
-      const { email, ...userToUpdate } = updateUserDto;
+      const { email, password, ...userToUpdate } = updateUserDto;
      }
      await this.usersRepository.update(id, userToUpdate);
       return updateUserDto;

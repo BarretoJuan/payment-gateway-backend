@@ -13,7 +13,7 @@ import {
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { FindOneOptions } from "typeorm";
+import { Equal, FindOneOptions } from "typeorm";
 import { AuthGuard } from "../auth/auth.guard";
 import { AuthService } from "../auth/auth.service";
 
@@ -60,12 +60,21 @@ export class UserController {
 
         if (updateUserDto.identificationNumber) {
           const user = await this.userService.findOne({
-            where: { identificationNumber: updateUserDto.identificationNumber },
+            where: { identificationNumber: Equal(updateUserDto.identificationNumber) },
           });
           if (user && user.id !== id) {
             throw new UnauthorizedException("Identification number already exists");
           }
 
+        }
+
+        if (updateUserDto.email) {
+          const user = await this.userService.findOne({
+            where: { email: Equal(updateUserDto.email) },
+          });
+          if (user && user.id !== id) {
+            throw new UnauthorizedException("Email already exists");
+          }
         }
 
         if (!decodedToken) {
