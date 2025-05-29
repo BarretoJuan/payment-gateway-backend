@@ -45,6 +45,18 @@ export class TransactionController {
       return [];
     }
   }
+
+  @Get("payment-method-percentage")
+  async paymentMethodPercentage() {
+    try {
+      return await this.transactionService.paymentMethodPercentage();
+    } catch (error) {
+      return [
+       {name : "paypal", percentage: 0} ,
+       {name : "zelle", percentage: 0} 
+    ];
+    }
+  }
   
   @UseGuards(AuthGuard)
   @Get("user-transactions-history")

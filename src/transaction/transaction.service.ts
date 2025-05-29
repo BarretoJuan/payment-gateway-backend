@@ -150,6 +150,27 @@ export class TransactionService {
     return { transaction, finalAmount, transactionId: transactionToCreate?.id };
   }
 
+   async paymentMethodPercentage() {
+
+    const paypalCount = await this.transactionsRepository.count({
+      where: { paymentMethod: Equal("paypal"), status: Equal("completed") },
+    });
+
+    const zelleCount = await this.transactionsRepository.count({
+      where: { paymentMethod: Equal("zelle"), status: Equal("completed") },
+    });
+
+    const totalCount = paypalCount + zelleCount;
+    console.log("paypalCount", paypalCount, "zelleCount", zelleCount, "totalCount", totalCount);
+    const paypalPercentage = (totalCount > 0 ? (paypalCount / totalCount) * 100 : 0).toPrecision(4);
+    const zellePercentage = (totalCount > 0 ? (zelleCount / totalCount) * 100 : 0).toPrecision(4);
+
+    return [
+       {name : "paypal", percentage: paypalPercentage} ,
+       {name : "zelle", percentage: zellePercentage} 
+    ]
+    }
+
   async getDashboardTransaction() {
     let transactions = await this.transactionsRepository.find({
       select: { id: true, amount: true, createdAt: true },
