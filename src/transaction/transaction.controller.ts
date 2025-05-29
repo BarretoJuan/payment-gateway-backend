@@ -34,6 +34,17 @@ export class TransactionController {
   findAll() {
     return this.transactionService.findAll();
   }
+
+
+  @Get("dashboard-transactions")
+  async dashboardTransactions() {
+    try {
+      return await this.transactionService.getDashboardTransaction();
+    }
+    catch (error) {
+      return [];
+    }
+  }
   
   @UseGuards(AuthGuard)
   @Get("user-transactions-history")

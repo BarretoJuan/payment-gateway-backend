@@ -150,6 +150,16 @@ export class TransactionService {
     return { transaction, finalAmount, transactionId: transactionToCreate?.id };
   }
 
+  async getDashboardTransaction() {
+    const transactions = await this.transactionsRepository.find({
+      select: { id: true, amount: true, createdAt: true },
+      where: { status: "completed" },
+
+    });
+
+   return transactions;
+  }
+
   async getOperatorTransactionsHistory(userId: string) {
   
     const  transactions = await this.transactionsRepository.find({
