@@ -397,6 +397,7 @@ export class TransactionService {
   async findOperator() {
        return await this.transactionsRepository.find({
       relations: ["course", "user", "validatedBy"],
+      order: { createdAt: "DESC" },
       where: {
         status: "ready_to_be_checked",
   }})
