@@ -15,8 +15,7 @@ export class CompanyService {
 
   async findFirst() {
     return this.companyRepository.findOne({
-
-    });
+      where: {},});
   }
   async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
 
