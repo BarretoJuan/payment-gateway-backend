@@ -24,6 +24,46 @@ export class UserCourseService {
     private readonly transactionsService: TransactionService, // Assuming transactionsService is part of CourseService
   ) {}
 
+  async userCourseJson() {
+    const userCourses = await this.userCoursesRepository.find({
+      select: {
+        id:true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+        status: true,
+        cancellationReason: true,
+        user: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+          deletedAt: true,
+          email: true,
+          identificationNumber: true,
+          firstName: true, 
+          lastName: true,
+          balance: true,
+          role: true,
+        },
+        course: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+          deletedAt: true,
+          price: true,
+          name: true,
+          description: true,
+          image: true,
+        },
+      },
+      relations: ["user", "course"],
+      where: { status: "cancelled" }, 
+      order: { createdAt: "DESC" },
+
+  })
+  return userCourses;
+};
+
   async create(createUserCourseDto: CreateUserCourseDto) {
     const user = await this.usersService.findOne({
       where: { id: Equal(createUserCourseDto.userId) },

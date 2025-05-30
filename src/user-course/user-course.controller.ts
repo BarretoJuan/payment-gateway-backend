@@ -24,6 +24,18 @@ export class UserCourseController {
   create(@Body() createUserCourseDto: CreateUserCourseDto) {
     return this.userCourseService.create(createUserCourseDto);
   }
+  @Get("user-course-json")
+  userCourseJson() {
+    console.log("Fetching user course JSON");
+    try {
+      return this.userCourseService.userCourseJson();
+    }
+    catch (error) {
+      console.error("Error fetching user course JSON:", error);
+      return [];
+  }
+}
+
 
   @Post("decode")
   decodeGatewayToken(@Body() token: { token: string }) {

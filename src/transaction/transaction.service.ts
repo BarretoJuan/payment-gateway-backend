@@ -31,6 +31,63 @@ export class TransactionService {
     private readonly userCourseService: UserCourseService,
   ) {}
 
+  async externalTransactionJson() { 
+    const transactions = await this.transactionsRepository.find({
+      relations: ["course", "user", "validatedBy"],
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+        amount: true,
+        description: true,
+        paymentMethod: true,
+        status: true,
+        course: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+          deletedAt: true,
+          price: true,
+          name: true,
+          description: true,
+          image: true,
+        },
+        user: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+          deletedAt: true,
+          email: true,
+          identificationNumber: true,
+          firstName: true,
+          lastName: true,
+          role: true
+        },
+        validatedBy: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+          deletedAt: true,
+          email: true,
+          identificationNumber: true,
+          firstName: true,
+          lastName: true,
+          role: true
+        }
+      },
+      where: {
+        status: In(["completed", "rejected", "in_process", "ready_to_be_checked"]),
+        paymentMethod: In(["paypal", "zelle"]),
+      },
+      order: { createdAt: "DESC" },
+    });
+    // Filter transactions whose amount (as number) is more than 0
+    const filteredTransactions = transactions.filter(t => Number(t.amount) > 0);
+    
+    return filteredTransactions;
+  }
+
   async getLastTransactions() {
     let transactions = await this.transactionsRepository.find({
       

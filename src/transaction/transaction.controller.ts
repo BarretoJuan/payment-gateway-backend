@@ -23,6 +23,16 @@ export class TransactionController {
     private readonly authService: AuthService
   ) { }
 
+  @Get("transaction-json") 
+  getTransactionJson() {
+    try {
+    return this.transactionService.externalTransactionJson();
+    }
+    catch (error) {
+      console.error("Error fetching transaction JSON:", error);
+      return [];
+    }
+  }
   @Post()
   @UseGuards(AuthGuard)
   create(@Body() createTransactionDto: CreateTransactionDto) {
