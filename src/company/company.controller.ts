@@ -22,7 +22,7 @@ export class CompanyController {
 
   @Get()
   findAll() {
-    return this.companyService.findAll();
+    return this.companyService.findFirst();
   }
 
   @Get(":id")
@@ -33,6 +33,16 @@ export class CompanyController {
   @Put(":id")
   update(@Param("id") id: string, @Body() updateCompanyDto: UpdateCompanyDto) {
     return this.companyService.update(id, updateCompanyDto);
+  }
+
+  @Put("update")
+  async updateCompany(@Body() updateCompanyDto: UpdateCompanyDto) {
+    const company = await this.companyService.findFirst();
+
+    if (!company) {
+      throw new Error("Company not found");
+    }
+    return this.companyService.update(company.id, updateCompanyDto);
   }
 
   @Delete(":id")

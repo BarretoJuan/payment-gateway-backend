@@ -12,6 +12,12 @@ export class CompanyService {
     private companyRepository: Repository<Company>,
   ) {}
 
+
+  async findFirst() {
+    return this.companyRepository.findOne({
+
+    });
+  }
   create(createCompanyDto: CreateCompanyDto): Promise<Company> {
     const company = this.companyRepository.save(createCompanyDto);
     return company;
@@ -29,6 +35,10 @@ export class CompanyService {
     id: string,
     updateCompanyDto: UpdateCompanyDto,
   ): Promise<Company | null> {
+
+    if (!updateCompanyDto) {
+      throw new Error("Update data is required");
+    }
     await this.companyRepository.update(id, updateCompanyDto);
     return this.companyRepository.findOne({ where: { id } });
   }
