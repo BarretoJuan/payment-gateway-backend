@@ -63,7 +63,8 @@ export class CourseController {
   }
 
   @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.courseService.remove(id);
+  @UseGuards(AuthGuard)
+  remove(@Param("id") id: string, body: {cancellationReason?: string}) {
+    return this.courseService.remove(id, body?.cancellationReason);
   }
 }

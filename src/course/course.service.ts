@@ -84,7 +84,7 @@ export class CourseService {
     return await this.coursesRepository.update(id, updateCourseDto);
   }
 
-  async remove(id: string) {
+  async remove(id: string, cancellationReason?: string) {
     const course = await this.coursesRepository.findOne({ where: { id } });
     if (!course) {
       throw new Error("Course not found");
@@ -94,6 +94,12 @@ export class CourseService {
     const userCourses = await this.userCoursesService.find({where: {course: Equal(course.id), status: Not('cancelled') }, relations: ["user"]});
     console.log("userCourses", userCourses)
     for (const userCourse of userCourses) {
+
+      if (cancellationReason) {
+        userCourse.cancellationReason = cancellationReason;
+      }
+      else {
+        userCourse.cancellationReason = "Curso cancelado";}
       
       userCourse.status = "cancelled";
       await this.userCoursesService.update(userCourse.id, userCourse);
