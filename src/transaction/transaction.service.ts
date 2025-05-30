@@ -40,6 +40,7 @@ export class TransactionService {
         updatedAt: true,
         deletedAt: true,
         amount: true,
+        description: true,
         paymentMethod: true,
         status: true,
         course: {
@@ -227,6 +228,13 @@ export class TransactionService {
         ...createTransactionDto,
       });
       console.log("444", createTransactionDto)
+      try {
+        transaction.description = "Pago " + course.name}
+      catch (error) { 
+        console.error("Error setting transaction description:", error);
+        transaction.description = "Pago curso";
+      }
+      
       transactionToCreate = await this.transactionsRepository.save(transaction);
       console.log("333", transactionToCreate);
     } 
