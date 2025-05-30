@@ -40,7 +40,6 @@ export class TransactionService {
         updatedAt: true,
         deletedAt: true,
         amount: true,
-        description: true,
         paymentMethod: true,
         status: true,
         course: {
