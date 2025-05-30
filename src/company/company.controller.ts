@@ -25,6 +25,17 @@ export class CompanyController {
     return this.companyService.findFirst();
   }
 
+    @Put("update")
+  async updateCompany(@Body() updateCompanyDto: UpdateCompanyDto) {
+    const company = await this.companyService.findFirst();
+
+    if (!company) {
+      throw new Error("Company not found");
+    }
+    return this.companyService.update(company.id, updateCompanyDto);
+  }
+
+
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.companyService.findOne(id);
@@ -35,15 +46,7 @@ export class CompanyController {
     return this.companyService.update(id, updateCompanyDto);
   }
 
-  @Put("update")
-  async updateCompany(@Body() updateCompanyDto: UpdateCompanyDto) {
-    const company = await this.companyService.findFirst();
 
-    if (!company) {
-      throw new Error("Company not found");
-    }
-    return this.companyService.update(company.id, updateCompanyDto);
-  }
 
   @Delete(":id")
   remove(@Param("id") id: string) {
