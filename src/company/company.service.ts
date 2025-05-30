@@ -18,9 +18,24 @@ export class CompanyService {
 
     });
   }
-  create(createCompanyDto: CreateCompanyDto): Promise<Company> {
-    const company = this.companyRepository.save(createCompanyDto);
-    return company;
+  async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
+
+    const companyExists = await this.findFirst()
+
+    if (companyExists) {
+      const updateCompany = await this.update(companyExists.id, createCompanyDto);
+        if (updateCompany) {
+          return updateCompany;
+        } 
+        else {
+          throw new Error("Company update failed");
+        }
+    }
+    else {
+      const company = this.companyRepository.save(createCompanyDto);
+      return company;
+    }
+ 
   }
 
   findAll(): Promise<Company[]> {
