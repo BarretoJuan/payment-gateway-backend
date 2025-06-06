@@ -36,6 +36,17 @@ export class UserCourseController {
   }
 }
 
+@Get("acquired-courses")
+  findAcquiredCourses() {
+    try {
+      return this.userCourseService.userCourseJsonActive();
+    }
+    catch (error) {
+      console.error("Error fetching acquired courses:", error);
+      return [];
+    }
+  }
+
   @Get("cancelled-courses")
   findCancelledCourses() {
     try {

@@ -64,6 +64,45 @@ export class UserCourseService {
     return userCourses;
   };
 
+   async userCourseJsonActive() {
+    const userCourses = await this.userCoursesRepository.find({
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+        status: true,
+        user: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+          deletedAt: true,
+          email: true,
+          identificationNumber: true,
+          firstName: true,
+          lastName: true,
+          balance: true,
+          role: true,
+        },
+        course: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+          deletedAt: true,
+          price: true,
+          name: true,
+          description: true,
+          image: true,
+        },
+      },
+      relations: ["user", "course"],
+      where: { status: "acquired" },
+      order: { createdAt: "DESC" },
+
+    })
+    return userCourses;
+  };
+
   // This will return the latest cancelled user-course per cancelled course, it wouldn't be a problem because client will never consume user-course but its status which will the same whatever course is retrieved
   async findCancelledCourses() {
     const userCourses = await this.userCoursesRepository
