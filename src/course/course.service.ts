@@ -27,6 +27,24 @@ export class CourseService {
     });
   }
 
+  async activeCourses() {
+    const userCourses = await this.userCoursesService.userCourseJsonActive();
+
+    const courses = userCourses.map((uc) => ({ ...uc.course }));
+
+
+    const uniqueCoursesMap = new Map<string, any>();
+    courses.forEach((course) => {
+      if (!uniqueCoursesMap.has(course.id)) {
+        uniqueCoursesMap.set(course.id, course);
+      }
+    });
+
+    const uniqueCourses = Array.from(uniqueCoursesMap.values());
+    console.log("activeCourses", uniqueCourses);
+    return uniqueCourses;
+  }
+
   async coursesAndUsers() {
     const courses = await this.coursesRepository.find();
     const userCourses = await this.userCoursesService.find({

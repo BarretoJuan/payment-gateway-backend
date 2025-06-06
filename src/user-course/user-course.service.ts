@@ -67,23 +67,6 @@ export class UserCourseService {
    async userCourseJsonActive() {
     const userCourses = await this.userCoursesRepository.find({
       select: {
-        id: true,
-        createdAt: true,
-        updatedAt: true,
-        deletedAt: true,
-        status: true,
-        user: {
-          id: true,
-          createdAt: true,
-          updatedAt: true,
-          deletedAt: true,
-          email: true,
-          identificationNumber: true,
-          firstName: true,
-          lastName: true,
-          balance: true,
-          role: true,
-        },
         course: {
           id: true,
           createdAt: true,
@@ -95,7 +78,7 @@ export class UserCourseService {
           image: true,
         },
       },
-      relations: ["user", "course"],
+      relations: ["course"],
       where: { status: "acquired" },
       order: { createdAt: "DESC" },
 

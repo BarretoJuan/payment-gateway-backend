@@ -30,6 +30,11 @@ export class CourseController {
     return this.courseService.create(createCourseDto);
   }
 
+  @Get("active-courses")
+  activeCourses() {
+    return this.courseService.activeCourses();
+  }
+
   @Get("user-and-courses")
   userAndCourses() {
     return this.courseService.coursesAndUsers();
