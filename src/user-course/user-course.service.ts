@@ -18,16 +18,16 @@ export class UserCourseService {
     @InjectRepository(UserCourse)
     private userCoursesRepository: Repository<UserCourse>,
     private readonly usersService: UserService,
-  @Inject(forwardRef(() => CourseService))
+    @Inject(forwardRef(() => CourseService))
     private readonly coursesService: CourseService,
     @Inject(forwardRef(() => TransactionService))
     private readonly transactionsService: TransactionService, // Assuming transactionsService is part of CourseService
-  ) {}
+  ) { }
 
   async userCourseJson() {
     const userCourses = await this.userCoursesRepository.find({
       select: {
-        id:true,
+        id: true,
         createdAt: true,
         updatedAt: true,
         deletedAt: true,
@@ -40,7 +40,7 @@ export class UserCourseService {
           deletedAt: true,
           email: true,
           identificationNumber: true,
-          firstName: true, 
+          firstName: true,
           lastName: true,
           balance: true,
           role: true,
@@ -57,12 +57,39 @@ export class UserCourseService {
         },
       },
       relations: ["user", "course"],
-      where: { status: "cancelled" }, 
+      where: { status: "cancelled" },
       order: { createdAt: "DESC" },
 
-  })
-  return userCourses;
-};
+    })
+    return userCourses;
+  };
+
+  // This will return the latest cancelled user-course per cancelled course, it wouldn't be a problem because client will never consume user-course but its status which will the same whatever course is retrieved
+  async findCancelledCourses() {
+    const userCourses = await this.userCoursesRepository
+    .createQueryBuilder("user_course")
+    .innerJoinAndSelect("user_course.course", "course") 
+    .where("user_course.status = :status", { status: "cancelled" }) 
+    .distinctOn(["course.id"])
+    .select([
+      "user_course.id",
+      "user_course.status",
+      "user_course.cancellationReason",
+      "course.id",
+      "course.createdAt",
+      "course.updatedAt",
+      "course.deletedAt",
+      "course.price",
+      "course.name",
+      "course.description",
+      "course.image",
+    ])
+    .orderBy("course.id", "ASC")
+    .addOrderBy("user_course.createdAt", "DESC")
+      .getMany()
+
+    return userCourses;
+  }
 
   async create(createUserCourseDto: CreateUserCourseDto) {
     const user = await this.usersService.findOne({

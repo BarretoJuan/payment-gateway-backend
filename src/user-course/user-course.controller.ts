@@ -36,7 +36,16 @@ export class UserCourseController {
   }
 }
 
-
+  @Get("cancelled-courses")
+  findCancelledCourses() {
+    try {
+      return this.userCourseService.findCancelledCourses();
+    }
+    catch (error) {
+      console.error("Error fetching cancelled courses:", error);
+      return [];
+    }
+  }
   @Post("decode")
   decodeGatewayToken(@Body() token: { token: string }) {
     console.log("token", token);
