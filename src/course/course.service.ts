@@ -27,6 +27,34 @@ export class CourseService {
     });
   }
 
+  async coursesAndUsers() {
+    const courses = await this.coursesRepository.find();
+    const userCourses = await this.userCoursesService.find({
+      where: { status: "acquired" },
+      relations: ["user", "course"],
+    });
+
+    const courseUsersMap: Record<string, any[]> = {};
+    userCourses.forEach((uc) => {
+      const courseId = uc.course.id;
+      if (!courseUsersMap[courseId]) {
+      courseUsersMap[courseId] = [];
+      }
+      courseUsersMap[courseId].push(uc.user);
+    });
+
+    const coursesWithUsers = courses.map((course) => ({
+      ...course,
+    
+      students: courseUsersMap[course.id] || [],
+      studentsCount: 0
+    }));
+
+    coursesWithUsers.forEach((course) => {
+      course.studentsCount = course.students.length;});
+
+    return coursesWithUsers}
+
   async create(createCourseDto: DeepPartial<Courses>) {
     const course = await this.coursesRepository.save(createCourseDto);
 
