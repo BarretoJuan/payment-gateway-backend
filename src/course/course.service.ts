@@ -42,7 +42,7 @@ export class CourseService {
 
     const uniqueCourses = Array.from(uniqueCoursesMap.values());
     console.log("activeCourses", uniqueCourses);
-    return uniqueCourses;
+    return {activeCourseCount: uniqueCourses.length, courses: uniqueCourses};
   }
 
   async coursesAndUsers() {
