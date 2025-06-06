@@ -23,6 +23,10 @@ export class UserService {
   async findAll() {
     return await this.usersRepository.find();
   }
+
+  async findActiveUsers() {
+    return await this.usersRepository.find({ where: { userCourses: {status: "acquired"} } }); 
+  }
      
   async findByRole(role: "admin" | "accounting" | "user") {
     return await this.usersRepository.find({

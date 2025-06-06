@@ -32,6 +32,11 @@ export class UserController {
   findAll() {
     return this.userService.findAll();
   }
+  
+  @Get("active-users")
+  activeUsers() {
+    return this.userService.findActiveUsers();
+  }
 
   @Get("role/:role")
   @UseGuards(AuthGuard)
