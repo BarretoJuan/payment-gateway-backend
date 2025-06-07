@@ -27,7 +27,7 @@ export class CourseService {
     });
   }
 
-  async activeCourses() {
+  async activeCourses(param?:string) {
     const userCourses = await this.userCoursesService.userCourseJsonActive();
 
     const courses = userCourses.map((uc) => ({ ...uc.course }));
@@ -42,11 +42,14 @@ export class CourseService {
 
     const uniqueCourses = Array.from(uniqueCoursesMap.values());
     console.log("activeCourses", uniqueCourses);
+    if(param ==='onlyCourses') {
+      return uniqueCourses
+    }
     return {activeCourseCount: uniqueCourses.length, courses: uniqueCourses};
   }
 
   async coursesAndUsers() {
-    const courses = await this.coursesRepository.find();
+    const courses = await this.activeCourses("onlyCourses") as any[];
     const userCourses = await this.userCoursesService.find({
       where: { status: "acquired" },
       relations: ["user", "course"],
