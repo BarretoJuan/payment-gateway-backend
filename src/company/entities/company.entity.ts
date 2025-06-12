@@ -26,6 +26,9 @@ export class Company {
   @Column("text", { name: "image", nullable: true })
   image: string | null;
 
+  @Column("text", { name: "company_identification", nullable: true})
+  company_identification: string | null;
+
   @Column("enum", {
     name: "payment_preference",
     nullable: true,

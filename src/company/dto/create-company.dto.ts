@@ -5,5 +5,6 @@ export class CreateCompanyDto {
   email?: string;
   description?: string;
   image?: string;
+  company_identification?: string;
   payment_preference?: "paypal" | "zelle" | "both";
 }
