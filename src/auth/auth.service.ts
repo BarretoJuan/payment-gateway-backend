@@ -243,6 +243,7 @@ export class AuthService {
     email,
     telephone_number,
     description,
+    company_identification
   }: CreateCompanyDto) {
     const { isFirstRun } = await this.checkFirstRun();
 
@@ -255,6 +256,7 @@ export class AuthService {
       email,
       telephone_number,
       description,
+      company_identification
     });
 
     return company;
