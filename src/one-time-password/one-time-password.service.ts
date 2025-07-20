@@ -3,7 +3,7 @@ import { CreateOneTimePasswordDto } from './dto/create-one-time-password.dto';
 import { UpdateOneTimePasswordDto } from './dto/update-one-time-password.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OneTimePassword } from './entities/one-time-password.entity';
-import { Repository } from 'typeorm';
+import { Equal, Repository } from 'typeorm';
 import { User } from '../user/entities/user.entity';
 import { MailerService } from '@nestjs-modules/mailer';
 import { AuthService } from '../auth/auth.service';
@@ -44,12 +44,16 @@ export class OneTimePasswordService  {
   }
 
   async validateOTP(user: User, code: number, password: string) {
+    console.log("VALIDATE OTP: ", user, code, password);
     const otp = await this.oneTimePasswordRepository.findOne({
-      where: { user: { id: user.id }, code, used: false },
+      where: { user: { id: Equal(user.id) }, code: Equal(code), used: false },
       order: { createdAt: 'DESC' },
     });
 
+    console.log("OTP VALIDATION: ", otp);
+
     if (!otp) {
+      console.log("OTP not found or already used");
       return false; // OTP not found or already used
     }
 
