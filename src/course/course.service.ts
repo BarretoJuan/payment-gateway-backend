@@ -23,7 +23,7 @@ export class CourseService {
 
   async findAllCourses() {
     return await this.coursesRepository.find({
-      relations: ["installments"],
+      relations: ["installments"], order: { createdAt: 'DESC' }
     });
   }
 
@@ -115,7 +115,7 @@ export class CourseService {
   }
 
   async findAll() {
-    return await this.coursesRepository.find({ relations: ["installments"] });
+    return await this.coursesRepository.find({ relations: ["installments"], order: { createdAt: 'DESC' } }, );
   }
 
   async findAllInstallments() {
