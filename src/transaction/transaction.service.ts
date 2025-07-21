@@ -216,9 +216,9 @@ export class TransactionService {
       user.balance = "0";
     }
 
-    let finalAmountRounded = finalAmount.toFixed(2);
+    let finalAmountRounded = (finalAmount) => Math.round((finalAmount + Number.EPSILON) * 100) / 100;
     // await this.usersService.update(userId, { balance: user.balance });
-    createTransactionDto.amount = finalAmountRounded;
+    createTransactionDto.amount = finalAmountRounded.toString();
     let transactionToCreate: Transaction | undefined;
     let transaction: Transaction;
 
