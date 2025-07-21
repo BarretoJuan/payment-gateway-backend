@@ -244,7 +244,7 @@ export class TransactionService {
     }
 
 
-    return { transaction, finalAmountRounded, transactionId: transactionToCreate?.id };
+    return { transaction, finalAmount: finalAmountRounded, transactionId: transactionToCreate?.id };
   }
 
    async paymentMethodPercentage() {
