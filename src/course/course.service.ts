@@ -8,6 +8,7 @@ import { InstallmentService } from "../installment/installment.service";
 import { SupabaseService } from "../supabase/supabase.service";
 import { UserService } from "../user/user.service";
 import { UserCourseService } from "../user-course/user-course.service";
+import { isNull } from "util";
 
 @Injectable()
 export class CourseService {
@@ -117,6 +118,10 @@ export class CourseService {
   async findAll() {
     return await this.coursesRepository.find({ relations: ["installments"], order: { createdAt: 'DESC' } }, );
   }
+  async findAllNotDeleted() {
+    return await this.coursesRepository.find({ where: { deletedAt: (await import("typeorm")).IsNull() }, relations: ["installments"], order: { createdAt: 'DESC' } });
+  }
+
 
   async findAllInstallments() {
     return await this.coursesRepository.find({

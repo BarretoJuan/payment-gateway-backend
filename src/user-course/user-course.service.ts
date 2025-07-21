@@ -151,7 +151,7 @@ export class UserCourseService {
   ) {
     // await this.transactionsService.cancelExpiredTransactionsByUser(userId);
     if (status === "not_bought") {
-      const allCourses = await this.coursesService.findAll();
+      const allCourses = await this.coursesService.findAllNotDeleted();
       const userCourses = await this.userCoursesRepository.find({
         relations: ["course"],
         where: { user: Equal(userId) },
