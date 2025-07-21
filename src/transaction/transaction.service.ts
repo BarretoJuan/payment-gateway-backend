@@ -216,9 +216,8 @@ export class TransactionService {
       user.balance = "0";
     }
 
-    let finalAmountRounded = finalAmount.toFixed(2);
     // await this.usersService.update(userId, { balance: user.balance });
-    createTransactionDto.amount = finalAmountRounded;
+    createTransactionDto.amount = finalAmount.toString();
     let transactionToCreate: Transaction | undefined;
     let transaction: Transaction;
 
@@ -244,7 +243,7 @@ export class TransactionService {
     }
 
 
-    return { transaction, finalAmount:finalAmountRounded, transactionId: transactionToCreate?.id };
+    return { transaction, finalAmount, transactionId: transactionToCreate?.id };
   }
 
    async paymentMethodPercentage() {
